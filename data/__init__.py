@@ -44,7 +44,7 @@ def get_option_setter(dataset_name):
     return dataset_class.modify_commandline_options
 
 
-def create_dataset(opt):
+def create_dataset(opt,index):
     """Create a dataset given the option.
 
     This function wraps the class CustomDatasetDataLoader.
@@ -54,7 +54,7 @@ def create_dataset(opt):
         >>> from data import create_dataset
         >>> dataset = create_dataset(opt)
     """
-    data_loader = CustomDatasetDataLoader(opt)
+    data_loader = CustomDatasetDataLoader(opt,index)
     dataset = data_loader.load_data()
     return dataset
 
@@ -62,7 +62,7 @@ def create_dataset(opt):
 class CustomDatasetDataLoader():
     """Wrapper class of Dataset class that performs multi-threaded data loading"""
 
-    def __init__(self, opt):
+    def __init__(self, opt,index):
         """Initialize this class
 
         Step 1: create a dataset instance given the name [dataset_mode]
@@ -74,6 +74,7 @@ class CustomDatasetDataLoader():
         print("dataset [%s] was created" % type(self.dataset).__name__)
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset,
+            sampler = index,
             batch_size=opt.batch_size,
             shuffle=not opt.serial_batches,
             num_workers=int(opt.num_threads))
