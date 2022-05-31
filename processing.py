@@ -25,11 +25,13 @@ from data import create_dataset
 from models import create_model
 from util.visualizer import Visualizer
 from util.visualizer import save_images
+from sklearn.model_selection import KFold
 from util import html
 import torch
 import numpy as np
 import pickle
 
+NB_DATA = 4474
 
 class Namespace:
     def __init__(self, kwargs):
@@ -53,7 +55,9 @@ def train(model, train_loader, epoch, opt):
     model.update_learning_rate()    # update learning rates in the beginning of every epoch.
     psnr_metric = []
     ssim_metric = []
-    for i, data in enumerate(dataset):  # inner loop within one epoch
+    loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
+
+    for i, data in enumerate(train_loader):  # inner loop within one epoch
         iter_start_time = time.time()  # timer for computation per iteration
         if total_iters % opt.print_freq == 0:
             t_data = iter_start_time - iter_data_time
@@ -128,13 +132,14 @@ def test(model,test_loader, epoch, opt_test):
     # test with eval mode. This only affects layers like batchnorm and dropout.
     # For [pix2pix]: we use batchnorm and dropout in the original pix2pix. You can experiment it with and without eval() mode.
     # For [CycleGAN]: It should not affect CycleGAN as CycleGAN uses instancenorm without dropout.
-
+    
     model.eval()
     with torch.no_grad():
         ssim_list = []
         psnr_list = []
+        loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
         #bpnn_list = []
-        for i, data in enumerate(dataset_test):
+        for i, data in enumerate(test_loader):
             model.set_input(data)  # unpack data from data loader
             if i < opt_test.num_test:  # only apply our model to opt.num_test images.
                 #visuals = model.get_current_visuals()  # get image results
@@ -146,11 +151,18 @@ def test(model,test_loader, epoch, opt_test):
             psnr, ssim = model.metrics()
             psnr_list.append(psnr)
             ssim_list.append(ssim)
-            if opt_test.BPNN_mode == "False":
-                bpnn = model.Loss_extraction()
-                bpnn = bpnn.cpu().detach().numpy()
-                bpnn_list.append(bpnn)
-                bpnn = np.mean(bpnn_list)
+            losses = model.get_current_losses()
+            if opt_test.BPNN_mode == "True":
+                loss_dis["BPNN"].append(losses["BPNN"])
+            loss_dis["G_L1"].append(losses["G_L1"])
+            loss_dis["G_GAN"].append(losses["G_GAN"])
+            loss_dis["D_fake"].append(losses["D_fake"])
+            loss_dis["D_real"].append(losses["D_real"])
+            #if opt_test.BPNN_mode == "False":
+            #    bpnn = model.Loss_extraction()
+            #    bpnn = bpnn.cpu().detach().numpy()
+            #    bpnn_list.append(bpnn)
+            #    bpnn = np.mean(bpnn_list)
         psnr, ssim = np.mean(psnr_list), np.mean(ssim_list)
         metric_dict_test["psnr test"].append(psnr)
         metric_dict_test["ssim test"].append(ssim)
@@ -165,9 +177,7 @@ def test(model,test_loader, epoch, opt_test):
 ''' main '''
 
 opt = ProcessOptions().parse()   # get training options
-dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
-dataset_size = len(dataset)    # get the number of images in the dataset.
-print('The number of training images = %d' % dataset_size)
+
 
 model = create_model(opt)      # create a model given opt.model and other options
 model.setup(opt)               # regular setup: load and print networks; create schedulers
@@ -182,11 +192,19 @@ opt_test.display_id = -1   # no visdom display; the test code saves the results 
 opt_test.phase = 'test'
 opt_test.eval = True
 
-dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
+#dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
+# Spliting dataset into validation and train set 
+index = range(NB_DATA) 
+kf = KFold(n_splits = 5, shuffle=True)
 
-loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
-metric_dict_train = {"psnr":[],"ssim":[]}
-metric_dict_test = {"psnr test":[],"ssim test":[]}
-for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq> 
-    train(model, dataset, epoch, opt ) # train the epoch
-    test(model, dataset_test, epoch, opt_test) # test the epoch
+for train_index, test_index in kf.split(index):
+    dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
+    dataset_size = len(dataset)    # get the number of images in the dataset.
+    print('The number of training images = %d' % dataset_size)
+    dataset_test = create_dataset(opt_test,test_index)
+    print('The number of testing images = %d' % len(dataset_test))
+    metric_dict_train = {"psnr":[],"ssim":[]}
+    metric_dict_test = {"psnr test":[],"ssim test":[]}
+    for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq> 
+        train(model, dataset, epoch, opt ) # train the epoch
+        test(model, dataset_test, epoch, opt_test) # test the epoch
