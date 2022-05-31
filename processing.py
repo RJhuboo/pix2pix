@@ -128,39 +128,38 @@ def test(model,test_loader, epoch, opt_test):
     # test with eval mode. This only affects layers like batchnorm and dropout.
     # For [pix2pix]: we use batchnorm and dropout in the original pix2pix. You can experiment it with and without eval() mode.
     # For [CycleGAN]: It should not affect CycleGAN as CycleGAN uses instancenorm without dropout.
-    if opt_test.eval:
-        print("eval mode")
-        model.eval()
-    ssim_list = []
-    psnr_list = []
-    #bpnn_list = []
-    for i, data in enumerate(dataset_test):
-        model.set_input(data)  # unpack data from data loader
-        model.test()           # run inference
-        if i < opt_test.num_test:  # only apply our model to opt.num_test images.
-            visuals = model.get_current_visuals()  # get image results
-            img_path = model.get_image_paths()     # get image paths
-            print("path where images are saves during validation : ", img_path)
-            if i % 5 == 0:  # save images to an HTML file
-                print('processing (%04d)-th image... %s' % (i, img_path))
-            save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
-        psnr, ssim = model.metrics()
-        psnr_list.append(psnr)
-        ssim_list.append(ssim)
+
+    model.eval()
+    with torch.no_grad():
+        ssim_list = []
+        psnr_list = []
+        #bpnn_list = []
+        for i, data in enumerate(dataset_test):
+            model.set_input(data)  # unpack data from data loader
+            if i < opt_test.num_test:  # only apply our model to opt.num_test images.
+                #visuals = model.get_current_visuals()  # get image results
+                #img_path = model.get_image_paths()     # get image paths
+                print("path where images are saves during validation : ", img_path)
+                if i % 5 == 0:  # save images to an HTML file
+                    print('processing (%04d)-th image... %s' % (i, img_path))
+                #save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
+            psnr, ssim = model.metrics()
+            psnr_list.append(psnr)
+            ssim_list.append(ssim)
+            if opt_test.BPNN_mode == "False":
+                bpnn = model.Loss_extraction()
+                bpnn = bpnn.cpu().detach().numpy()
+                bpnn_list.append(bpnn)
+                bpnn = np.mean(bpnn_list)
+        psnr, ssim = np.mean(psnr_list), np.mean(ssim_list)
+        metric_dict_test["psnr test"].append(psnr)
+        metric_dict_test["ssim test"].append(ssim)
         #if opt_test.BPNN_mode == "False":
-         #   bpnn = model.Loss_extraction()
-          #  bpnn = bpnn.cpu().detach().numpy()
-           # bpnn_list.append(bpnn)
-           # bpnn = np.mean(bpnn_list)
-    psnr, ssim = np.mean(psnr_list), np.mean(ssim_list)
-    metric_dict_test["psnr test"].append(psnr)
-    metric_dict_test["ssim test"].append(ssim)
-    #if opt_test.BPNN_mode == "False":
-      #  metric_dict_test["bpnn test metric"].append(bpnn)
-    directory_ml = os.path.join(opt.results_dir,opt.name)
-    with open(os.path.join(directory_ml,"metric_test.txt"),"wb") as f:
-        pickle.dump(metric_dict_test,f)
-    #webpage.save()  # save the HTML
+          #  metric_dict_test["bpnn test metric"].append(bpnn)
+        directory_ml = os.path.join(opt.results_dir,opt.name)
+        with open(os.path.join(directory_ml,"metric_test.txt"),"wb") as f:
+            pickle.dump(metric_dict_test,f)
+        #webpage.save()  # save the HTML
 
 
 ''' main '''
@@ -176,12 +175,12 @@ opt_test = Namespace(vars(opt))
 # hard-code some parameters for test
 opt_test.num_threads = 0   # test code only supports num_threads = 0
 opt_test.batch_size = 1    # test code only supports batch_size = 1
+print("in opt:",opt.batch_size,"in opt_test:", opt_test)
 opt_test.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
 opt_test.no_flip = True    # no flip; comment this line if results on flipped images are needed.
 opt_test.display_id = -1   # no visdom display; the test code saves the results to a HTML file.
 opt_test.phase = 'test'
 opt_test.eval = True
-print("eval is ", opt_test.eval)
 
 dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
 
