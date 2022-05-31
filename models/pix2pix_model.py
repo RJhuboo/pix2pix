@@ -50,10 +50,8 @@ class Pix2PixModel(BaseModel):
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
         if opt.BPNN_mode == "True":
             self.loss_names = ['G_GAN', 'G_L1', 'D_real', 'D_fake','BPNN']
-            print("ON A BPNN DANS LA LOSS")
         else:
             self.loss_names = ['G_GAN', 'G_L1', 'D_real', 'D_fake']
-            print("PAS DE BPNN DANS LA LOSS OUF")
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         self.visual_names = ['real_A', 'fake_B', 'real_B']
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
