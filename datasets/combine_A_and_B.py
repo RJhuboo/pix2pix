@@ -58,10 +58,8 @@ for sp in splits:
                 name_AB = name_AB.replace('_A.', '.')  # remove _A
             path_AB = os.path.join(img_fold_AB, name_AB)
             if not args.no_multiprocessing:
-                print("no multi")
                 pool.apply_async(image_write, args=(path_A, path_B, path_AB))
             else:
-                print("we should be here")
                 im_A = cv2.imread(path_A, 1) # python2: cv2.CV_LOAD_IMAGE_COLOR; python3: cv2.IMREAD_COLOR
                 im_B = cv2.imread(path_B, 1) # python2: cv2.CV_LOAD_IMAGE_COLOR; python3: cv2.IMREAD_COLOR
                 if args.resize_A == True:
