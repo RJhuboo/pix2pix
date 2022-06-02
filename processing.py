@@ -53,9 +53,8 @@ def train(model, train_loader, epoch, opt):
     total_iters = 0                # the total number of training iterations
     visualizer.reset()              # reset the visualizer: make sure it saves the results to HTML at least once every epoch
     model.update_learning_rate()    # update learning rates in the beginning of every epoch.
-    psnr_metric = []
-    ssim_metric = []
-    loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
+    psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN = [],[],[],[],[],[],[]
+    #loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[],"psnr":[],"ssim":[]}
 
     for i, data in enumerate(train_loader):  # inner loop within one epoch
         iter_start_time = time.time()  # timer for computation per iteration
@@ -78,41 +77,39 @@ def train(model, train_loader, epoch, opt):
             losses = model.get_current_losses()
             t_comp = (time.time() - iter_start_time) / opt.batch_size
             visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
-            psnr_mean = np.mean(psnr_metric)
-            ssim_mean = np.mean(ssim_metric)
 
-            metric_dict_train["psnr"].append(psnr_mean)
-            metric_dict_train["ssim"].append(ssim_mean)
             if opt.BPNN_mode == "True":
-                loss_dis["BPNN"].append(losses["BPNN"])
+                BPNN_save.append(losses["BPNN"])
             #else:
                 #bpnn_mean = model.Loss_extraction()
                 #loss_dis["BPNN"].append(bpnn_mean)
-            loss_dis["G_L1"].append(losses["G_L1"])
-            loss_dis["G_GAN"].append(losses["G_GAN"])
-            loss_dis["D_fake"].append(losses["D_fake"])
-            loss_dis["D_real"].append(losses["D_real"])
-            if opt.display_wandb is True:
-                directory_ml = os.path.join(opt.results_dir,opt.name)
-                if os.path.exists(directory_ml) is False:
-                    os.mkdir(directory_ml)
-                with open(os.path.join(directory_ml,"loss.txt"),"wb") as f:
-                    pickle.dump(loss_dis,f)
-                with open(os.path.join(directory_ml,"metric.txt"),"wb") as f:
-                    pickle.dump(metric_dict_train,f)
+            G_L1_save.append(losses["G_L1"])
+            G_GAN_save.append(losses["G_GAN"])
+            D_fake_save.append(losses["D_fake"])
+            D_real_save.append(losses["D_real"])
+          
 
             if opt.display_id > 0:
                 visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
                 print("suppose to display loss")
-            psnr_metric = []                # initialize psnr 
-            ssim_metric = []                 # initialize ssim
-            bpnn_metric = []
+        
         if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
             print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
             save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
             model.save_networks(save_suffix)
 
         iter_data_time = time.time()
+    
+    # calculate mean psnr and ssim for this epoch
+    #if opt.display_wandb == True:
+    #    directory_ml = os.path.join(opt.results_dir,opt.name)
+    #    if os.path.exists(directory_ml) is False:
+    #        os.mkdir(directory_ml)
+    #    with open(os.path.join(directory_ml,"loss.txt"),"wb") as f:
+    #        pickle.dump(loss_dis,f)
+    #    with open(os.path.join(directory_ml,"metric.txt"),"wb") as f:
+    #        pickle.dump(metric_dict_train,f)
+            
     if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
         print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
         model.save_networks('latest')
@@ -120,6 +117,7 @@ def train(model, train_loader, epoch, opt):
 
     print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
     
+    return np.mean(psnr_metric),np.mean(ssim_metric),np.mean(BPNN_save),np.mean(G_GAN_save),np.mean(G_L1_save),np.mean(D_fake_save),np.mean(D_real_save)
    
 
 
@@ -135,9 +133,9 @@ def test(model,test_loader, epoch, opt_test):
     
     model.eval()
     with torch.no_grad():
-        ssim_list = []
-        psnr_list = []
-        loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
+        
+        psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN = [],[],[],[],[],[],[]
+        # loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
         #bpnn_list = []
         for i, data in enumerate(test_loader):
             model.set_input(data)  # unpack data from data loader
@@ -149,62 +147,99 @@ def test(model,test_loader, epoch, opt_test):
                     print('processing (%04d)-th image... %s' % (i, img_path))
                 #save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
             psnr, ssim = model.metrics()
-            psnr_list.append(psnr)
-            ssim_list.append(ssim)
+            psnr_metric.append(psnr)
+            ssim_metric.append(ssim)
             losses = model.get_current_losses()
             if opt_test.BPNN_mode == "True":
-                loss_dis["BPNN"].append(losses["BPNN"])
-            loss_dis["G_L1"].append(losses["G_L1"])
-            loss_dis["G_GAN"].append(losses["G_GAN"])
-            loss_dis["D_fake"].append(losses["D_fake"])
-            loss_dis["D_real"].append(losses["D_real"])
+                BPNN_save.append(losses["BPNN"])
+            G_L1_save.append(losses["G_L1"])
+            G_GAN_save.append(losses["G_GAN"])
+            D_fake_save.append(losses["D_fake"])
+            D_real_save.append(losses["D_real"])
             #if opt_test.BPNN_mode == "False":
             #    bpnn = model.Loss_extraction()
             #    bpnn = bpnn.cpu().detach().numpy()
             #    bpnn_list.append(bpnn)
             #    bpnn = np.mean(bpnn_list)
-        psnr, ssim = np.mean(psnr_list), np.mean(ssim_list)
-        metric_dict_test["psnr test"].append(psnr)
-        metric_dict_test["ssim test"].append(ssim)
         #if opt_test.BPNN_mode == "False":
           #  metric_dict_test["bpnn test metric"].append(bpnn)
-        directory_ml = os.path.join(opt.results_dir,opt.name)
-        with open(os.path.join(directory_ml,"metric_test.txt"),"wb") as f:
-            pickle.dump(metric_dict_test,f)
+        #directory_ml = os.path.join(opt.results_dir,opt.name)
+        #with open(os.path.join(directory_ml,"metric_test.txt"),"wb") as f:
+        #    pickle.dump(metric_dict_test,f)
         #webpage.save()  # save the HTML
+    return np.mean(psnr_metric),np.mean(ssim_metric),np.mean(G_GAN_save),np.mean(G_L1_save),np.mean(G_fake_save),np.mean(D_real_save)
 
 
 ''' main '''
+if __name_ == '__main__':
+       
+    opt = ProcessOptions().parse()   # get training options
+    model = create_model(opt)      # create a model given opt.model and other options
+    model.setup(opt)               # regular setup: load and print networks; create schedulers
+    opt_test = Namespace(vars(opt))
+    # hard-code some parameters for test
+    opt_test.num_threads = 0   # test code only supports num_threads = 0
+    opt_test.batch_size = 1    # test code only supports batch_size = 1
+    print("in opt:",opt.batch_size,"in opt_test:", opt_test)
+    opt_test.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
+    opt_test.no_flip = True    # no flip; comment this line if results on flipped images are needed.
+    opt_test.display_id = -1   # no visdom display; the test code saves the results to a HTML file.
+    opt_test.phase = 'test'
+    opt_test.eval = True
 
-opt = ProcessOptions().parse()   # get training options
+    def objective(trial):
+        #dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
+        # Spliting dataset into validation and train set 
+        index = range(NB_DATA) 
+        kf = KFold(n_splits = 5, shuffle=True)
+
+        for train_index, test_index in kf.split(index):
+            dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
+            dataset_size = len(dataset)    # get the number of images in the dataset.
+            print('The number of training images = %d' % dataset_size)
+            dataset_test = create_dataset(opt_test,test_index)
+            print('The number of testing images = %d' % len(dataset_test))
+            metric_dict_train = {"psnr":[],"ssim":[],"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
+            metric_dict_test = {"psnr":[],"ssim":[],"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
+            psnr_metric,ssim_metric,bpnn_metric,g_loss,l1_loss,psnr_test_metric,ssim_test_metric,bpnn_test_metric,g_test_loss,l1_test_loss = [],[],[],[],[],[],[],[],[],[]
+            for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq> 
+                p,s,b,g,l,f,r = train(model, dataset, epoch, opt ) # train the epoch
+                pt,st,bt,gt,lt,ft,rt = test(model, dataset_test, epoch, opt_test) # test the epoch
+                psnr_metric.append(p)
+                ssim_metric.append(s)
+                bpnn_metric.append(b)
+                g_loss.append(g)
+                l1_loss.append(l)
+                psnr_test_metric.append(pt)
+                ssim_test_metric.append(st)
+                bpnn_test_metric.append(bt)
+                g_test_loss.append(gt)
+                l1_test_loss.append(lt)
+            index_best_epoch = metric_dict_test["psnr"].index(max(metric_dict_test["psnr"]))
+            index_best_epoch_bpnn = metric_dict_test["BPNN"].index(max(metric_dict_test["BPNN"]))
+            metric_dict_train["psnr"].append(psnr_metric[index_best_epoch])
+            metric_dict_train["ssim"].append(ssim_metric[index_best_epoch])
+            metric_dict_train["BPNN"].append(bpnn_metric[index_best_epoch])
+            metric_dict_train["G_GAN"].append(g_loss[index_best_epoch])
+            metric_dict_train["G_L1"].append(l1_loss[index_best_epoch])
+            metric_dict_test["psnr"].append(psnr_test_metric[index_best_epoch])
+            metric_dict_test["ssim"].append(ssim_test_metric[index_best_epoch])
+            metric_dict_test["BPNN"].append(bpnn_test_metric[index_best_epoch])
+            metric_dict_test["G_GAN"].append(g_test_loss[index_best_epoch])
+            metric_dict_test["G_L1"].append(l1_test_loss[index_best_epoch])
+            if opt.display_wandb == True:
+                directory_ml = os.path.join(opt.results_dir,opt.name)
+                i=1
+                if os.path.exists(directory_ml) is False:
+                    os.mkdir(directory_ml)
+                while os.path.exists(os.path.join(directory_ml,"metric_loss"+str(i)+".pkl")) == True:
+                    i=i+1
+                with open(os.path.join(directory_ml,"metric_loss"+str(i)+".pkl"),"wb") as f:
+                    pickle.dump(metric_dict_train,f)
+                    pickle.dump(metric_dict_test,f)
+                
+        return np.mean(metric_dict_test["BPNN"], np.mean(metric_dict_test["psnr"])
 
 
-model = create_model(opt)      # create a model given opt.model and other options
-model.setup(opt)               # regular setup: load and print networks; create schedulers
-opt_test = Namespace(vars(opt))
-# hard-code some parameters for test
-opt_test.num_threads = 0   # test code only supports num_threads = 0
-opt_test.batch_size = 1    # test code only supports batch_size = 1
-print("in opt:",opt.batch_size,"in opt_test:", opt_test)
-opt_test.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
-opt_test.no_flip = True    # no flip; comment this line if results on flipped images are needed.
-opt_test.display_id = -1   # no visdom display; the test code saves the results to a HTML file.
-opt_test.phase = 'test'
-opt_test.eval = True
-
-#dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
-# Spliting dataset into validation and train set 
-index = range(NB_DATA) 
-kf = KFold(n_splits = 5, shuffle=True)
-
-for train_index, test_index in kf.split(index):
-    dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
-    dataset_size = len(dataset)    # get the number of images in the dataset.
-    print('The number of training images = %d' % dataset_size)
-    dataset_test = create_dataset(opt_test,test_index)
-    print('The number of testing images = %d' % len(dataset_test))
-    metric_dict_train = {"psnr":[],"ssim":[]}
-    metric_dict_test = {"psnr test":[],"ssim test":[]}
-    for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq> 
-        train(model, dataset, epoch, opt ) # train the epoch
-        test(model, dataset_test, epoch, opt_test) # test the epoch
+            
+  
