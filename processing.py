@@ -20,12 +20,14 @@ See frequently asked questions at: https://github.com/junyanz/pytorch-CycleGAN-a
 """
 import time
 import os
+from torch.nn import L1Loss, MSELoss
 from options.process_options import ProcessOptions
 from data import create_dataset
 from models import create_model
 from util.visualizer import Visualizer
 from util.visualizer import save_images
 from sklearn.model_selection import KFold
+import optuna
 from util import html
 import torch
 import numpy as np
@@ -173,10 +175,13 @@ def test(model,test_loader, epoch, opt_test):
 ''' main '''
 if __name_ == '__main__':
        
-
+    study = optuna.create_study(sampler=optuna.samplers.TPESampler(), directions =['minimize','maximize'])
+    
     def objective(trial):
         
         opt = ProcessOptions().parse()   # get training options
+        opt.alpha = trial.suggest_loguniform("alpha",1e-5,1e6)
+        opt.BPNN_loss = trial.suggest_categorical("BPNN_loss",[L1Loss(),MSELoss()])
         model = create_model(opt)      # create a model given opt.model and other options
         model.setup(opt)               # regular setup: load and print networks; create schedulers
         opt_test = Namespace(vars(opt))
@@ -240,7 +245,10 @@ if __name_ == '__main__':
                     pickle.dump(metric_dict_test,f)
                 
         return np.mean(metric_dict_test["BPNN"]), np.mean(metric_dict_test["psnr"])
-
+    
+    study.optimize(objective,n_trials=10)
+    with open("./pix2pix_BPNN_search.pkl","wb") as f:
+        pickle.dump(study,f)
 
             
   
