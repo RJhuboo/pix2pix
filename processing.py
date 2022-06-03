@@ -246,7 +246,7 @@ if __name_ == '__main__':
                 
         return np.mean(metric_dict_test["BPNN"]), np.mean(metric_dict_test["psnr"])
     
-    study.optimize(objective,n_trials=10)
+    study.optimize(objective,n_trials=1)
     with open("./pix2pix_BPNN_search.pkl","wb") as f:
         pickle.dump(study,f)
 
