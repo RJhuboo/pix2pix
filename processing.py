@@ -173,21 +173,22 @@ def test(model,test_loader, epoch, opt_test):
 ''' main '''
 if __name_ == '__main__':
        
-    opt = ProcessOptions().parse()   # get training options
-    model = create_model(opt)      # create a model given opt.model and other options
-    model.setup(opt)               # regular setup: load and print networks; create schedulers
-    opt_test = Namespace(vars(opt))
-    # hard-code some parameters for test
-    opt_test.num_threads = 0   # test code only supports num_threads = 0
-    opt_test.batch_size = 1    # test code only supports batch_size = 1
-    print("in opt:",opt.batch_size,"in opt_test:", opt_test)
-    opt_test.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
-    opt_test.no_flip = True    # no flip; comment this line if results on flipped images are needed.
-    opt_test.display_id = -1   # no visdom display; the test code saves the results to a HTML file.
-    opt_test.phase = 'test'
-    opt_test.eval = True
 
     def objective(trial):
+        
+        opt = ProcessOptions().parse()   # get training options
+        model = create_model(opt)      # create a model given opt.model and other options
+        model.setup(opt)               # regular setup: load and print networks; create schedulers
+        opt_test = Namespace(vars(opt))
+        # hard-code some parameters for test
+        opt_test.num_threads = 0   # test code only supports num_threads = 0
+        opt_test.batch_size = 1    # test code only supports batch_size = 1
+        print("in opt:",opt.batch_size,"in opt_test:", opt_test)
+        opt_test.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
+        opt_test.no_flip = True    # no flip; comment this line if results on flipped images are needed.
+        opt_test.display_id = -1   # no visdom display; the test code saves the results to a HTML file.
+        opt_test.phase = 'test'
+        opt_test.eval = True
         #dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
         # Spliting dataset into validation and train set 
         index = range(NB_DATA) 
