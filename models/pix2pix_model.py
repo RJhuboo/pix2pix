@@ -68,7 +68,7 @@ class Pix2PixModel(BaseModel):
         if opt.BPNN_mode == "True":
             self.BPNN = networks.BPNN_model()
             self.BPNN.cuda()
-            check_name = "BPNN_checkpoint_9.pth" # add by rehan
+            check_name = "BPNN_checkpoint_75.pth" # add by rehan
             self.BPNN.load_state_dict(torch.load(os.path.join(opt.checkpoint_BPNN,check_name))) # load model parameters
             print("---- BPNN mode ---- :", self.BPNN_mode)
 
@@ -84,7 +84,9 @@ class Pix2PixModel(BaseModel):
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
             self.criterionL1 = torch.nn.L1Loss()
-            self.criterionBPNN = torch.nn.MSELoss()
+            #self.criterionBPNN = torch.nn.MSELoss()
+            self.criterionBPNN = opt.BPNN_Loss
+            self.alpha = opt.alpha 
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
@@ -167,7 +169,7 @@ class Pix2PixModel(BaseModel):
         # combine loss and calculate gradients
         if self.BPNN_mode == "True":
             self.loss_BPNN = self.Bio_param() * self.opt.lambda_BPNN
-            self.loss_G = self.loss_G_GAN + self.loss_G_L1 + self.loss_BPNN 
+            self.loss_G = self.loss_G_GAN + self.loss_G_L1 + (self.alpha * self.loss_BPNN)
         self.loss_G = self.loss_G_GAN + self.loss_G_L1
         self.loss_G.backward()
 
