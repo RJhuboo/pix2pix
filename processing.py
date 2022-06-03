@@ -238,7 +238,7 @@ if __name_ == '__main__':
                     pickle.dump(metric_dict_train,f)
                     pickle.dump(metric_dict_test,f)
                 
-        return np.mean(metric_dict_test["BPNN"], np.mean(metric_dict_test["psnr"])
+        return np.mean(metric_dict_test["BPNN"]), np.mean(metric_dict_test["psnr"])
 
 
             
