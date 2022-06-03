@@ -173,7 +173,7 @@ def test(model,test_loader, epoch, opt_test):
 
 
 ''' main '''
-if __name_ == '__main__':
+if __name__ == '__main__':
        
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(), directions =['minimize','maximize'])
     
