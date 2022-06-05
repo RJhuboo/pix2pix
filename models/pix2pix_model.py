@@ -66,7 +66,7 @@ class Pix2PixModel(BaseModel):
         # define a BPNN network for biological parameter estimation by Rehan
         self.BPNN_mode = opt.BPNN_mode
         if opt.BPNN_mode == "True":
-            self.BPNN = networks.BPNN_model(features=85,out_channels=64,n1=158,n2=211,n3=176,k1=3,k2=3,k3=3)
+            self.BPNN = networks.BPNN_model(features=85,out_channels=6,n1=158,n2=211,n3=176,k1=3,k2=3,k3=3)
             self.BPNN.cuda()
             check_name = "BPNN_checkpoint_75.pth" # add by rehan
             self.BPNN.load_state_dict(torch.load(os.path.join(opt.checkpoint_BPNN,check_name))) # load model parameters
