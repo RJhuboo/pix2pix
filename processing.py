@@ -181,7 +181,7 @@ if __name__ == '__main__':
         
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = trial.suggest_loguniform("alpha",1e-5,1e6)
-        opt.BPNN_loss = trial.suggest_categorical("BPNN_loss",[L1Loss(),MSELoss()])
+        opt.BPNN_Loss = trial.suggest_categorical("BPNN_loss",[L1Loss(),MSELoss()])
         model = create_model(opt)      # create a model given opt.model and other options
         model.setup(opt)               # regular setup: load and print networks; create schedulers
         opt_test = Namespace(vars(opt))
