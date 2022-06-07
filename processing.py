@@ -202,7 +202,7 @@ if __name__ == '__main__':
         for train_index, test_index in kf.split(index):
             print(train_index, test_index)
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
-            dataset_size = len(dataset)    # get the number of images in the dataset.
+            dataset_size = len(dataset_train)    # get the number of images in the dataset.
             print('The number of training images = %d' % dataset_size)
             dataset_test = create_dataset(opt_test,test_index)
             print('The number of testing images = %d' % len(dataset_test))
