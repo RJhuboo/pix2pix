@@ -95,10 +95,10 @@ def train(model, train_loader, epoch, opt):
                 visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
                 print("suppose to display loss")
         
-        if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
-            print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
-            save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
-            model.save_networks(save_suffix)
+        #if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
+        #    print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
+        #    save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
+        #    model.save_networks(save_suffix)
 
         iter_data_time = time.time()
     
@@ -112,10 +112,10 @@ def train(model, train_loader, epoch, opt):
     #    with open(os.path.join(directory_ml,"metric.txt"),"wb") as f:
     #        pickle.dump(metric_dict_train,f)
             
-    if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
-        print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
-        model.save_networks('latest')
-        model.save_networks(epoch)
+    #if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
+    #    print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
+    #    model.save_networks('latest')
+    #    model.save_networks(epoch)
 
     print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
     
