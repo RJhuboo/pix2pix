@@ -210,7 +210,7 @@ if __name__ == '__main__':
             metric_dict_test = {"psnr":[],"ssim":[],"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
             psnr_metric,ssim_metric,bpnn_metric,g_loss,l1_loss,psnr_test_metric,ssim_test_metric,bpnn_test_metric,g_test_loss,l1_test_loss = [],[],[],[],[],[],[],[],[],[]
             for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq> 
-                p,s,b,g,l,f,r = train(model, dataset, epoch, opt ) # train the epoch
+                p,s,b,g,l,f,r = train(model, dataset_train, epoch, opt ) # train the epoch
                 pt,st,bt,gt,lt,ft,rt = test(model, dataset_test, epoch, opt_test) # test the epoch
                 psnr_metric.append(p)
                 ssim_metric.append(s)
