@@ -142,8 +142,8 @@ def test(model,test_loader, epoch, opt_test):
         for i, data in enumerate(test_loader):
             model.set_input(data)  # unpack data from data loader
             if i < opt_test.num_test:  # only apply our model to opt.num_test images.
-                #visuals = model.get_current_visuals()  # get image results
-                #img_path = model.get_image_paths()     # get image paths
+                visuals = model.get_current_visuals()  # get image results
+                img_path = model.get_image_paths()     # get image paths
                 print("path where images are saves during validation : ", img_path)
                 if i % 5 == 0:  # save images to an HTML file
                     print('processing (%04d)-th image... %s' % (i, img_path))
