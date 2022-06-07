@@ -141,6 +141,7 @@ def test(model,test_loader, epoch, opt_test):
         #bpnn_list = []
         for i, data in enumerate(test_loader):
             model.set_input(data)  # unpack data from data loader
+            model.test() # Forward pass
             if i < opt_test.num_test:  # only apply our model to opt.num_test images.
                 visuals = model.get_current_visuals()  # get image results
                 img_path = model.get_image_paths()     # get image paths
