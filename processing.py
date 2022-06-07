@@ -55,7 +55,7 @@ def train(model, train_loader, epoch, opt):
     total_iters = 0                # the total number of training iterations
     visualizer.reset()              # reset the visualizer: make sure it saves the results to HTML at least once every epoch
     model.update_learning_rate()    # update learning rates in the beginning of every epoch.
-    psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN = [],[],[],[],[],[],[]
+    psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN_save = [],[],[],[],[],[],[]
     #loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[],"psnr":[],"ssim":[]}
 
     for i, data in enumerate(train_loader):  # inner loop within one epoch
