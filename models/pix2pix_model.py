@@ -125,6 +125,7 @@ class Pix2PixModel(BaseModel):
         ssim = []
         psnr = []
         print("metrics size Fb :", F_b.shape)
+        print("metrics size Rb :", R_b.shape)
         for b in range(F_b.size(0)):
             img1, img2 = F_b[b,0,:,:], R_b[b,0,:,:] 
             psnr.append(networks.PSNR(img1, img2).cpu().detach().numpy())
