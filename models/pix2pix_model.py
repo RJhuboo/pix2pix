@@ -47,7 +47,8 @@ class Pix2PixModel(BaseModel):
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
         BaseModel.__init__(self, opt)
-        # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
+        # specify the training losses you want to 
+        out. The training/test scripts will call <BaseModel.get_current_losses>
         if opt.BPNN_mode == "True":
             self.loss_names = ['G_GAN', 'G_L1', 'D_real', 'D_fake','BPNN']
         else:
@@ -112,7 +113,6 @@ class Pix2PixModel(BaseModel):
         
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
-        print("size of fake_B and real_B :", self.fake_B.size(), self.real_B.size())
         self.P_fake = self.BPNN(self.fake_B)
         self.P_real = self.BPNN(self.real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
