@@ -196,10 +196,11 @@ if __name__ == '__main__':
         opt_test.eval = True
         #dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
         # Spliting dataset into validation and train set 
-        index = range(NB_DATA) 
+        index = range(NB_DATA)
         kf = KFold(n_splits = 5, shuffle=True)
 
         for train_index, test_index in kf.split(index):
+            print(train_index, test_index)
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
             dataset_size = len(dataset)    # get the number of images in the dataset.
             print('The number of training images = %d' % dataset_size)
