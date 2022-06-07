@@ -179,12 +179,11 @@ if __name__ == '__main__':
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(), directions =['minimize','maximize'])
     
     def objective(trial):
-        
+        # options for training
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = trial.suggest_loguniform("alpha",1e-5,1e6)
         opt.BPNN_Loss = trial.suggest_categorical("BPNN_loss",[L1Loss(),MSELoss()])
-        model = create_model(opt)      # create a model given opt.model and other options
-        model.setup(opt)               # regular setup: load and print networks; create schedulers
+        # options for validation
         opt_test = Namespace(vars(opt))
         # hard-code some parameters for test
         opt_test.num_threads = 0   # test code only supports num_threads = 0
@@ -201,6 +200,8 @@ if __name__ == '__main__':
         kf = KFold(n_splits = 5, shuffle=True)
 
         for train_index, test_index in kf.split(index):
+            model = create_model(opt)      # create a model given opt.model and other options
+            model.setup(opt)               # regular setup: load and print networks; create schedulers
             print(train_index, test_index)
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
             dataset_size = len(dataset_train)    # get the number of images in the dataset.
