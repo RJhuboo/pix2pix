@@ -203,9 +203,9 @@ if __name__ == '__main__':
             print(train_index, test_index)
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
             dataset_size = len(dataset_train)    # get the number of images in the dataset.
-            print('The number of training images = %d' % len(train_index))
+            print('The number of training images = %d' % len(dataset_train))
             dataset_test = create_dataset(opt_test,test_index)
-            print('The number of testing images = %d' % len(test_index))
+            print('The number of testing images = %d' % len(dataset_test))
             metric_dict_train = {"psnr":[],"ssim":[],"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
             metric_dict_test = {"psnr":[],"ssim":[],"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
             psnr_metric,ssim_metric,bpnn_metric,g_loss,l1_loss,psnr_test_metric,ssim_test_metric,bpnn_test_metric,g_test_loss,l1_test_loss = [],[],[],[],[],[],[],[],[],[]
