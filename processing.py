@@ -136,7 +136,7 @@ def test(model,test_loader, epoch, opt_test):
     model.eval()
     with torch.no_grad():
         
-        psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN = [],[],[],[],[],[],[]
+        psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN_save = [],[],[],[],[],[],[]
         # loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
         #bpnn_list = []
         for i, data in enumerate(test_loader):
