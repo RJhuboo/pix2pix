@@ -112,6 +112,7 @@ class Pix2PixModel(BaseModel):
         
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
+        print("size of fake_B and real_B :", np.size(self.fake_B), np.size(self.real_B))
         self.P_fake = self.BPNN(self.fake_B)
         self.P_real = self.BPNN(self.real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
