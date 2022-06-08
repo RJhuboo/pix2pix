@@ -47,8 +47,7 @@ class Pix2PixModel(BaseModel):
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
         BaseModel.__init__(self, opt)
-        # specify the training losses you want to 
-        out. The training/test scripts will call <BaseModel.get_current_losses>
+        # specify the training losses you want to out. The training/test scripts will call <BaseModel.get_current_losses>
         if opt.BPNN_mode == "True":
             self.loss_names = ['G_GAN', 'G_L1', 'D_real', 'D_fake','BPNN']
         else:
