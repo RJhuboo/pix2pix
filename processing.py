@@ -182,7 +182,7 @@ if __name__ == '__main__':
         # options for training
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = trial.suggest_loguniform("alpha",1e-5,1e6)
-        opt.BPNN_Loss = trial.suggest_categorical("BPNN_loss",[L1Loss,MSELoss])
+        opt.BPNN_Loss = trial.suggest_categorical("BPNN_loss",[L1Loss(),MSELoss()])
         # options for validation
         opt_test = Namespace(vars(opt))
         # hard-code some parameters for test
