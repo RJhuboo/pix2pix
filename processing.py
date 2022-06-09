@@ -220,6 +220,8 @@ if __name__ == '__main__':
                 bpnn_test_metric.append(bt)
                 g_test_loss.append(gt)
                 l1_test_loss.append(lt)
+            print("\nMax psnr for this fold :", max(psnr_test_metric["psnr"]))
+            print("Values type :", type(psnr_test_metric[0]))
             index_best_epoch = psnr_test_metric["psnr"].index(max(psnr_test_metric["psnr"]))
             index_best_epoch_bpnn = bpnn_test_metric["BPNN"].index(max(bpnn_test_metric["BPNN"]))
             metric_dict_train["psnr"].append(psnr_metric[index_best_epoch])
