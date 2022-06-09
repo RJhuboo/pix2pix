@@ -68,8 +68,8 @@ def train(model, train_loader, epoch, opt):
         model.set_input(data)         # unpack data from dataset and apply preprocessing
         model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
         psnr, ssim = model.metrics()
-        psnr_metric.append(psnr)
-        ssim_metric.append(ssim)
+        psnr_metric.append(psnr.item())
+        ssim_metric.append(ssim.item())
         if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
             save_result = total_iters % opt.update_html_freq == 0
             model.compute_visuals()
@@ -150,8 +150,8 @@ def test(model,test_loader, epoch, opt_test):
                     print('processing (%04d)-th image... %s' % (i, img_path))
                 #save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
             psnr, ssim = model.metrics()
-            psnr_metric.append(psnr)
-            ssim_metric.append(ssim)
+            psnr_metric.append(psnr.item())
+            ssim_metric.append(ssim.item())
             losses = model.get_current_losses()
             if opt_test.BPNN_mode == "True":
                 BPNN_save.append(losses["BPNN"])
