@@ -204,8 +204,8 @@ if __name__ == '__main__':
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
             dataset_size = len(dataset_train)    # get the number of images in the dataset.
             dataset_test = create_dataset(opt_test,test_index)
-            metric_dict_train = {"psnr":[],"ssim":[],"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
-            metric_dict_test = {"psnr":[],"ssim":[],"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
+            metric_dict_train = {"psnr":np.array(opt.n_epochs),"ssim":np.array(opt.n_epochs),"BPNN":np.array(opt.n_epochs),"G_GAN":np.array(opt.n_epochs),"G_L1":np.array(opt.n_epochs),"D_fake":np.array(opt.n_epochs),"D_real":np.array(opt.n_epochs)}
+            metric_dict_test = {"psnr":np.array(opt.n_epochs),"ssim":np.array(opt.n_epochs),"BPNN":np.array(opt.n_epochs),"G_GAN":np.array(opt.n_epochs),"G_L1":np.array(opt.n_epochs),"D_fake":np.array(opt.n_epochs),"D_real":np.array(opt.n_epochs)}
             psnr_metric,ssim_metric,bpnn_metric,g_loss,l1_loss,psnr_test_metric,ssim_test_metric,bpnn_test_metric,g_test_loss,l1_test_loss = [],[],[],[],[],[],[],[],[],[]
             for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq> 
                 p,s,b,g,l,f,r = train(model, dataset_train, epoch, opt ) # train the epoch
@@ -220,32 +220,43 @@ if __name__ == '__main__':
                 bpnn_test_metric.append(bt)
                 g_test_loss.append(gt)
                 l1_test_loss.append(lt)
-            index_best_epoch = psnr_test_metric.index(max(psnr_test_metric))
-            index_best_epoch_bpnn = bpnn_test_metric.index(max(bpnn_test_metric))
-            metric_dict_train["psnr"].append(psnr_metric[index_best_epoch])
-            metric_dict_train["ssim"].append(ssim_metric[index_best_epoch])
-            metric_dict_train["BPNN"].append(bpnn_metric[index_best_epoch])
-            metric_dict_train["G_GAN"].append(g_loss[index_best_epoch])
-            metric_dict_train["G_L1"].append(l1_loss[index_best_epoch])
-            metric_dict_test["psnr"].append(psnr_test_metric[index_best_epoch])
-            metric_dict_test["ssim"].append(ssim_test_metric[index_best_epoch])
-            metric_dict_test["BPNN"].append(bpnn_test_metric[index_best_epoch])
-            metric_dict_test["G_GAN"].append(g_test_loss[index_best_epoch])
-            metric_dict_test["G_L1"].append(l1_test_loss[index_best_epoch])
-            if opt.display_wandb == True:
-                directory_ml = os.path.join(opt.results_dir,opt.name)
-                i=1
-                if os.path.exists(directory_ml) is False:
-                    os.mkdir(directory_ml)
-                while os.path.exists(os.path.join(directory_ml,"metric_loss"+str(i)+".pkl")) == True:
-                    i=i+1
-                with open(os.path.join(directory_ml,"metric_loss"+str(i)+".pkl"),"wb") as f:
-                    pickle.dump(metric_dict_train,f)
-                    pickle.dump(metric_dict_test,f)
+            #index_best_epoch = psnr_test_metric.index(max(psnr_test_metric))
+            #index_best_epoch_bpnn = bpnn_test_metric.index(max(bpnn_test_metric))
+            metric_dict_train["psnr"] = metric_dict_train["psnr"] + psnr_metric
+            metric_dict_train["ssim"] = metric_dict_train["ssim"] + ssim_metric
+            metric_dict_train["BPNN"] = metric_dict_train["BPNN"] + bpnn_metric
+            metric_dict_train["G_GAN"] = metric_dict_train["G_GAN"] + g_loss
+            metric_dict_train["G_L1"] = metric_dict_train["G_L1"] + l1_loss
+            metric_dict_test["psnr"] = metric_dict_test["psnr"] + psnr_test_metric
+            metric_dict_test["ssim"] = metric_dict_test["ssim"] + ssim_test_metric
+            metric_dict_test["BPNN"] = metric_dict_test["BPNN"] + bpnn_test_metric
+            metric_dict_test["G_GAN"] = metric_dict_test["G_GAN"] + g_test_loss
+            metric_dict_test["G_L1"] = metric_dict_test["G_L1"] + l1_test_loss
+        
+        metric_dict_train["psnr"] = metric_dict_train["psnr"] / 5
+        metric_dict_train["ssim"] = metric_dict_train["ssim"] / 5
+        metric_dict_train["BPNN"] = metric_dict_train["BPNN"] / 5
+        metric_dict_train["G_GAN"] = metric_dict_train["G_GAN"] / 5
+        metric_dict_train["G_L1"] = metric_dict_train["G_L1"] / 5
+        metric_dict_test["psnr"] = metric_dict_test["psnr"] / 5
+        metric_dict_test["ssim"] = metric_dict_test["ssim"] / 5
+        metric_dict_test["BPNN"] = metric_dict_test["BPNN"] / 5
+        metric_dict_test["G_GAN"] = metric_dict_test["G_GAN"] / 5
+        metric_dict_test["G_L1"] = metric_dict_test["G_L1"] / 5
+        if opt.display_wandb == True:
+            directory_ml = os.path.join(opt.results_dir,opt.name)
+            i=1
+            if os.path.exists(directory_ml) is False:
+                os.mkdir(directory_ml)
+            while os.path.exists(os.path.join(directory_ml,"metric_loss"+str(i)+".pkl")) == True:
+                i=i+1
+            with open(os.path.join(directory_ml,"metric_loss"+str(i)+".pkl"),"wb") as f:
+                pickle.dump(metric_dict_train,f)
+                pickle.dump(metric_dict_test,f)
                 
-        return np.mean(metric_dict_test["BPNN"]), np.mean(metric_dict_test["psnr"])
+        return np.min(metric_dict_test["BPNN"]), np.max(metric_dict_test["psnr"])
     
-    study.optimize(objective,n_trials=1)
+    study.optimize(objective,n_trials=10)
     with open("./pix2pix_BPNN_search.pkl","wb") as f:
         pickle.dump(study,f)
 
