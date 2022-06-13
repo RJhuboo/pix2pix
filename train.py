@@ -25,15 +25,20 @@ from models import create_model
 from util.visualizer import Visualizer
 import wandb
 import numpy as np
+from torch.nn import L1Loss, MSELoss
+
+NB_DATA = 4474
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()   # get training options
-    dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
+    opt.alpha = # A FAIRE
+    opt.BPNN_Loss = MSELoss
+    dataset = create_dataset(opt,NB_DATA)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)    # get the number of images in the dataset.
     print('The number of training images = %d' % dataset_size)
 
     model = create_model(opt)      # create a model given opt.model and other options
-    model.setup(opt)               # regular setup: load and print networks; create schedulers
+    model.setup(opt)    # regular setup: load and print networks; create schedulers
     visualizer = Visualizer(opt)   # create a visualizer that display/save images and plots
     total_iters = 0                # the total number of training iterations
     
@@ -57,20 +62,18 @@ if __name__ == '__main__':
             model.set_input(data)         # unpack data from dataset and apply preprocessing
             model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
             ssim, psnr = model.metrics()
-            psnr_metric.append(psnr)
-            ssim_metric.append(ssim)
+            psnr_metric.append(psnr.item())
+            ssim_metric.append(ssim.item())
             if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
                 save_result = total_iters % opt.update_html_freq == 0
                 model.compute_visuals()
                 visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
-                print("psnr  %f, ssim %f" %(psnr,ssim))
+                print("psnr  %f, ssim %f" %(psnr.item(),ssim.item())
             if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
                 losses = model.get_current_losses()
                 t_comp = (time.time() - iter_start_time) / opt.batch_size
                 visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
-                psnr_mean = np.mean(psnr_metric)
-                ssim_mean = np.mean(ssim_metric)
-                metrics_dict = {"psnr": psnr_mean,"ssim": ssim_mean}
+                metrics_dict = {"psnr": np.mean(psnr_metric),"ssim": np.mean(ssim_metric)}
                 if opt.display_wandb is True:
                     wandb.log(losses)
                     wandb.log(metrics_dict)
