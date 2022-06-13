@@ -172,7 +172,8 @@ class Pix2PixModel(BaseModel):
         if self.BPNN_mode == "True":
             self.loss_BPNN = self.Bio_param() * self.opt.lambda_BPNN
             self.loss_G = self.loss_G_GAN + self.loss_G_L1 + (self.alpha * self.loss_BPNN)
-        self.loss_G = self.loss_G_GAN + self.loss_G_L1
+        else :
+            self.loss_G = self.loss_G_GAN + self.loss_G_L1
         self.loss_G.backward()
 
     def optimize_parameters(self):
