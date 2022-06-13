@@ -101,16 +101,6 @@ def train(model, train_loader, epoch, opt):
         #    model.save_networks(save_suffix)
 
         iter_data_time = time.time()
-    
-    # calculate mean psnr and ssim for this epoch
-    #if opt.display_wandb == True:
-    #    directory_ml = os.path.join(opt.results_dir,opt.name)
-    #    if os.path.exists(directory_ml) is False:
-    #        os.mkdir(directory_ml)
-    #    with open(os.path.join(directory_ml,"loss.txt"),"wb") as f:
-    #        pickle.dump(loss_dis,f)
-    #    with open(os.path.join(directory_ml,"metric.txt"),"wb") as f:
-    #        pickle.dump(metric_dict_train,f)
             
     #if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
     #    print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
@@ -159,16 +149,7 @@ def test(model,test_loader, epoch, opt_test):
             G_GAN_save.append(losses["G_GAN"])
             D_fake_save.append(losses["D_fake"])
             D_real_save.append(losses["D_real"])
-            #if opt_test.BPNN_mode == "False":
-            #    bpnn = model.Loss_extraction()
-            #    bpnn = bpnn.cpu().detach().numpy()
-            #    bpnn_list.append(bpnn)
-            #    bpnn = np.mean(bpnn_list)
-        #if opt_test.BPNN_mode == "False":
-          #  metric_dict_test["bpnn test metric"].append(bpnn)
-        #directory_ml = os.path.join(opt.results_dir,opt.name)
-        #with open(os.path.join(directory_ml,"metric_test.txt"),"wb") as f:
-        #    pickle.dump(metric_dict_test,f)
+          
         #webpage.save()  # save the HTML
     return np.mean(psnr_metric),np.mean(ssim_metric),np.mean(BPNN_save),np.mean(G_GAN_save),np.mean(G_L1_save),np.mean(D_fake_save),np.mean(D_real_save)
 
@@ -181,7 +162,7 @@ if __name__ == '__main__':
     def objective(trial):
         # options for training
         opt = ProcessOptions().parse()   # get training options
-        opt.alpha = trial.suggest_loguniform("alpha",1e-5,1e6)
+        opt.alpha = trial.suggest_loguniform("alpha",1e-4,1e3)
         opt.BPNN_Loss = trial.suggest_categorical("BPNN_loss",[L1Loss,MSELoss])
         # options for validation
         opt_test = Namespace(vars(opt))
@@ -204,8 +185,8 @@ if __name__ == '__main__':
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
             dataset_size = len(dataset_train)    # get the number of images in the dataset.
             dataset_test = create_dataset(opt_test,test_index)
-            metric_dict_train = {"psnr":np.array(opt.n_epochs),"ssim":np.array(opt.n_epochs),"BPNN":np.array(opt.n_epochs),"G_GAN":np.array(opt.n_epochs),"G_L1":np.array(opt.n_epochs),"D_fake":np.array(opt.n_epochs),"D_real":np.array(opt.n_epochs)}
-            metric_dict_test = {"psnr":np.array(opt.n_epochs),"ssim":np.array(opt.n_epochs),"BPNN":np.array(opt.n_epochs),"G_GAN":np.array(opt.n_epochs),"G_L1":np.array(opt.n_epochs),"D_fake":np.array(opt.n_epochs),"D_real":np.array(opt.n_epochs)}
+            metric_dict_train = {"psnr":np.zeros(opt.n_epochs),"ssim":np.zeros(opt.n_epochs),"BPNN":np.zeros(opt.n_epochs),"G_GAN":np.zeros(opt.n_epochs),"G_L1":np.zeros(opt.n_epochs),"D_fake":np.zeros(opt.n_epochs),"D_real":np.zeros(opt.n_epochs)}
+            metric_dict_test = {"psnr":np.zeros(opt.n_epochs),"ssim":np.zeros(opt.n_epochs),"BPNN":np.zeros(opt.n_epochs),"G_GAN":np.zeros(opt.n_epochs),"G_L1":np.zeros(opt.n_epochs),"D_fake":np.zeros(opt.n_epochs),"D_real":np.zeros(opt.n_epochs)}
             psnr_metric,ssim_metric,bpnn_metric,g_loss,l1_loss,psnr_test_metric,ssim_test_metric,bpnn_test_metric,g_test_loss,l1_test_loss = [],[],[],[],[],[],[],[],[],[]
             for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq> 
                 p,s,b,g,l,f,r = train(model, dataset_train, epoch, opt ) # train the epoch
