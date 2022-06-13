@@ -71,6 +71,8 @@ class Pix2PixModel(BaseModel):
             check_name = "BPNN_checkpoint_75.pth" # add by rehan
             self.BPNN.load_state_dict(torch.load(os.path.join(opt.checkpoint_BPNN,check_name))) # load model parameters
             print("---- BPNN mode ---- :", self.BPNN_mode)
+            for p in self.BPNN.parameters():
+                p.requires_grad = False
 
         # define parameters for instance noise by Rehan
         if self.isTrain:
