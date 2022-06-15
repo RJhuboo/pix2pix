@@ -185,8 +185,20 @@ if __name__ == '__main__':
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
             dataset_size = len(dataset_train)    # get the number of images in the dataset.
             dataset_test = create_dataset(opt_test,test_index)
-            metric_dict_train = {"psnr":np.zeros(opt.n_epochs),"ssim":np.zeros(opt.n_epochs),"BPNN":np.zeros(opt.n_epochs),"G_GAN":np.zeros(opt.n_epochs),"G_L1":np.zeros(opt.n_epochs),"D_fake":np.zeros(opt.n_epochs),"D_real":np.zeros(opt.n_epochs)}
-            metric_dict_test = {"psnr":np.zeros(opt.n_epochs),"ssim":np.zeros(opt.n_epochs),"BPNN":np.zeros(opt.n_epochs),"G_GAN":np.zeros(opt.n_epochs),"G_L1":np.zeros(opt.n_epochs),"D_fake":np.zeros(opt.n_epochs),"D_real":np.zeros(opt.n_epochs)}
+            metric_dict_train = {"psnr":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                 "ssim":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                 "BPNN":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                 "G_GAN":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                 "G_L1":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                 "D_fake":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                 "D_real":np.zeros(opt.n_epochs + opt.n_epochs_decay)}
+            metric_dict_test = {"psnr":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                "ssim":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                "BPNN":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                "G_GAN":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                "G_L1":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                "D_fake":np.zeros(opt.n_epochs + opt.n_epochs_decay),
+                                "D_real":np.zeros(opt.n_epochs + opt.n_epochs_decay)}
             psnr_metric,ssim_metric,bpnn_metric,g_loss,l1_loss,psnr_test_metric,ssim_test_metric,bpnn_test_metric,g_test_loss,l1_test_loss = [],[],[],[],[],[],[],[],[],[]
             for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq> 
                 p,s,b,g,l,f,r = train(model, dataset_train, epoch, opt ) # train the epoch
