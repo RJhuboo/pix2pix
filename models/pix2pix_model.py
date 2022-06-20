@@ -67,7 +67,7 @@ class Pix2PixModel(BaseModel):
         self.BPNN_mode = opt.BPNN_mode
         if opt.BPNN_mode == "True":
             self.BPNN = networks.BPNN_model(features=85,out_channels=6,n1=158,n2=211,n3=176,k1=3,k2=3,k3=3)
-            self.BPNN.cuda()
+            self.BPNN = self.BPNN.to(self.device)
             check_name = "BPNN_checkpoint_75.pth" # add by rehan
             self.BPNN.load_state_dict(torch.load(os.path.join(opt.checkpoint_BPNN,check_name))) # load model parameters
             print("---- BPNN mode ---- :", self.BPNN_mode)
@@ -84,7 +84,7 @@ class Pix2PixModel(BaseModel):
 
         if self.isTrain:
             # define loss functions
-            self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
+            self.criterionGAN = networks.GANLoss(opt.gan_mode)
             self.criterionL1 = torch.nn.L1Loss()
             #self.criterionBPNN = torch.nn.MSELoss()
             self.criterionBPNN = opt.BPNN_Loss()
