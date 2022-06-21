@@ -67,13 +67,14 @@ class Pix2PixModel(BaseModel):
         self.BPNN_mode = opt.BPNN_mode
         if opt.BPNN_mode == "True":
             self.BPNN = networks.BPNN_model(features=85,out_channels=6,n1=158,n2=211,n3=176,k1=3,k2=3,k3=3)
-            self.BPNN = self.BPNN.to(self.device)
+            self.BPNN = self.BPNN.to(self.gpu_ids)
             check_name = "BPNN_checkpoint_75.pth" # add by rehan
             self.BPNN.load_state_dict(torch.load(os.path.join(opt.checkpoint_BPNN,check_name))) # load model parameters
             print("---- BPNN mode ---- :", self.BPNN_mode)
             for p in self.BPNN.parameters():
                 p.requires_grad = False
-
+        
+        print("number of gpu in pix2pix : ", self.gpu_ids)
         # define parameters for instance noise by Rehan
         if self.isTrain:
             self.inst_noise_sigma = opt.noise_sigma
@@ -104,8 +105,8 @@ class Pix2PixModel(BaseModel):
         The option 'direction' can be used to swap images in domain A and domain B.
         """
         AtoB = self.opt.direction == 'AtoB'
-        self.real_A = input['A' if AtoB else 'B'].to(self.device)
-        self.real_B = input['B' if AtoB else 'A'].to(self.device)
+        self.real_A = input['A' if AtoB else 'B'].to(self.gpu_ids)
+        self.real_B = input['B' if AtoB else 'A'].to(self.gpu_ids)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
 
     def forward(self):
