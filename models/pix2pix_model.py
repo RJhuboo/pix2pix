@@ -80,10 +80,11 @@ class Pix2PixModel(BaseModel):
             #    self.__patch_instance_norm_state_dict(state_dict, self.BPNN, key.split('.'))
             #self.BPNN.load_state_dict(state_dict)
             self.BPNN.load_state_dict(torch.load(os.path.join(opt.checkpoint_BPNN,load_filename))) # load model parameters
-            if len(self.gpu_ids) > 0:
-                assert(torch.cuda.is_available())
-                self.BPNN.to(self.gpu_ids[0])
-                self.BPNN = torch.nn.DataParallel(self.BPNN, self.gpu_ids)  # multi-GPUs            
+            self.BPNN = self.BPNN.to(self.device)
+            #if len(self.gpu_ids) > 0:
+                #assert(torch.cuda.is_available())
+                #self.BPNN.to(self.gpu_ids[0])
+                #self.BPNN = torch.nn.DataParallel(self.BPNN, self.gpu_ids)  # multi-GPUs            
             print("---- BPNN mode ---- :", self.BPNN_mode)
             for p in self.BPNN.parameters():
                 p.requires_grad = False
