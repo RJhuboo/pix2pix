@@ -177,7 +177,7 @@ if __name__ == '__main__':
         #dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
         # Spliting dataset into validation and train set 
         index = range(NB_DATA)
-        kf = KFold(n_splits = 5, shuffle=True)
+        kf = KFold(n_splits = 1, shuffle=True)
 
         for train_index, test_index in kf.split(index):
             model = create_model(opt)      # create a model given opt.model and other options
@@ -226,16 +226,16 @@ if __name__ == '__main__':
             metric_dict_test["G_GAN"] = metric_dict_test["G_GAN"] + g_test_loss
             metric_dict_test["G_L1"] = metric_dict_test["G_L1"] + l1_test_loss
         
-        metric_dict_train["psnr"] = metric_dict_train["psnr"] / 5
-        metric_dict_train["ssim"] = metric_dict_train["ssim"] / 5
-        metric_dict_train["BPNN"] = metric_dict_train["BPNN"] / 5
-        metric_dict_train["G_GAN"] = metric_dict_train["G_GAN"] / 5
-        metric_dict_train["G_L1"] = metric_dict_train["G_L1"] / 5
-        metric_dict_test["psnr"] = metric_dict_test["psnr"] / 5
-        metric_dict_test["ssim"] = metric_dict_test["ssim"] / 5
-        metric_dict_test["BPNN"] = metric_dict_test["BPNN"] / 5
-        metric_dict_test["G_GAN"] = metric_dict_test["G_GAN"] / 5
-        metric_dict_test["G_L1"] = metric_dict_test["G_L1"] / 5
+        metric_dict_train["psnr"] = metric_dict_train["psnr"] / 1
+        metric_dict_train["ssim"] = metric_dict_train["ssim"] / 1
+        metric_dict_train["BPNN"] = metric_dict_train["BPNN"] / 1
+        metric_dict_train["G_GAN"] = metric_dict_train["G_GAN"] / 1
+        metric_dict_train["G_L1"] = metric_dict_train["G_L1"] / 1
+        metric_dict_test["psnr"] = metric_dict_test["psnr"] / 1
+        metric_dict_test["ssim"] = metric_dict_test["ssim"] / 1
+        metric_dict_test["BPNN"] = metric_dict_test["BPNN"] / 1
+        metric_dict_test["G_GAN"] = metric_dict_test["G_GAN"] / 1
+        metric_dict_test["G_L1"] = metric_dict_test["G_L1"] / 1
         if opt.display_wandb == True:
             directory_ml = os.path.join(opt.results_dir,opt.name)
             i=1
