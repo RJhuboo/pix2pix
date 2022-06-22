@@ -165,6 +165,7 @@ class Pix2PixModel(BaseModel):
         #fake_AB = torch.cat((self.real_A, self.fake_B + inst_noise ), 1)  # we use conditional GANs; we need to feed both input and output to the discriminator # Rehan adds inst_noise
         fake_AB = torch.cat((self.real_A, self.fake_B), 1)
         pred_fake = self.netD(fake_AB.detach())
+        print("netD device:", self.netD.get_device())
         self.loss_D_fake = self.criterionGAN(pred_fake, False)
         # Real
         #inst_noise = torch.normal(mean=inst_noise_mean,std=inst_noise_std).to(self.device) #Instance Noise added by Rehan
