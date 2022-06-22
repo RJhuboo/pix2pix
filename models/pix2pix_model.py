@@ -100,7 +100,7 @@ class Pix2PixModel(BaseModel):
 
         if self.isTrain:
             # define loss functions
-            self.criterionGAN = networks.GANLoss(opt.gan_mode)
+            self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
             self.criterionL1 = torch.nn.L1Loss()
             #self.criterionBPNN = torch.nn.MSELoss()
             self.criterionBPNN = opt.BPNN_Loss()
@@ -127,7 +127,7 @@ class Pix2PixModel(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.fake_B = self.netG(self.real_A)  # G(A)
-        
+                
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
         self.P_fake = self.BPNN(self.fake_B)
@@ -165,7 +165,6 @@ class Pix2PixModel(BaseModel):
         #fake_AB = torch.cat((self.real_A, self.fake_B + inst_noise ), 1)  # we use conditional GANs; we need to feed both input and output to the discriminator # Rehan adds inst_noise
         fake_AB = torch.cat((self.real_A, self.fake_B), 1)
         pred_fake = self.netD(fake_AB.detach())
-        print("netD device:", self.netD.get_device())
         self.loss_D_fake = self.criterionGAN(pred_fake, False)
         # Real
         #inst_noise = torch.normal(mean=inst_noise_mean,std=inst_noise_std).to(self.device) #Instance Noise added by Rehan

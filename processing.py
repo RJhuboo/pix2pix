@@ -163,7 +163,7 @@ if __name__ == '__main__':
         # options for training
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = trial.suggest_loguniform("alpha",1e-4,1e3)
-        opt.BPNN_Loss = trial.suggest_categorical("BPNN_loss",[L1Loss,MSELoss])
+        opt.BPNN_Loss = trial.suggest_categorical("BPNN_loss",[MSELoss])
         # options for validation
         opt_test = Namespace(vars(opt))
         # hard-code some parameters for test
@@ -249,7 +249,7 @@ if __name__ == '__main__':
                 
         return np.min(metric_dict_test["BPNN"]), np.max(metric_dict_test["psnr"])
     
-    study.optimize(objective,n_trials=20)
+    study.optimize(objective,n_trials=8)
     with open("./pix2pix_BPNN_search.pkl","wb") as f:
         pickle.dump(study,f)
 
