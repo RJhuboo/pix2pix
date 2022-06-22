@@ -26,7 +26,7 @@ from data import create_dataset
 from models import create_model
 from util.visualizer import Visualizer
 from util.visualizer import save_images
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, train_test_split
 import optuna
 from util import html
 import torch
@@ -177,8 +177,11 @@ if __name__ == '__main__':
         #dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
         # Spliting dataset into validation and train set 
         index = range(NB_DATA)
-        kf = KFold(n_splits = 1, shuffle=True)
-
+        if k_fold > 1:
+            kf = KFold(n_splits = opt.k_fold, shuffle=True)
+        else:
+            kf = train_test_split(k_fold,test_size = 0.2, random_state=42)
+            
         for train_index, test_index in kf.split(index):
             model = create_model(opt)      # create a model given opt.model and other options
             model.setup(opt)               # regular setup: load and print networks; create schedulers
@@ -226,16 +229,16 @@ if __name__ == '__main__':
             metric_dict_test["G_GAN"] = metric_dict_test["G_GAN"] + g_test_loss
             metric_dict_test["G_L1"] = metric_dict_test["G_L1"] + l1_test_loss
         
-        metric_dict_train["psnr"] = metric_dict_train["psnr"] / 1
-        metric_dict_train["ssim"] = metric_dict_train["ssim"] / 1
-        metric_dict_train["BPNN"] = metric_dict_train["BPNN"] / 1
-        metric_dict_train["G_GAN"] = metric_dict_train["G_GAN"] / 1
-        metric_dict_train["G_L1"] = metric_dict_train["G_L1"] / 1
-        metric_dict_test["psnr"] = metric_dict_test["psnr"] / 1
-        metric_dict_test["ssim"] = metric_dict_test["ssim"] / 1
-        metric_dict_test["BPNN"] = metric_dict_test["BPNN"] / 1
-        metric_dict_test["G_GAN"] = metric_dict_test["G_GAN"] / 1
-        metric_dict_test["G_L1"] = metric_dict_test["G_L1"] / 1
+        metric_dict_train["psnr"] = metric_dict_train["psnr"] / opt.k_fold
+        metric_dict_train["ssim"] = metric_dict_train["ssim"] / opt.k_fold
+        metric_dict_train["BPNN"] = metric_dict_train["BPNN"] / opt.k_fold
+        metric_dict_train["G_GAN"] = metric_dict_train["G_GAN"] / opt.k_fold
+        metric_dict_train["G_L1"] = metric_dict_train["G_L1"] / opt.k_fold
+        metric_dict_test["psnr"] = metric_dict_test["psnr"] / opt.k_fold
+        metric_dict_test["ssim"] = metric_dict_test["ssim"] / opt.k_fold
+        metric_dict_test["BPNN"] = metric_dict_test["BPNN"] / opt.k_fold
+        metric_dict_test["G_GAN"] = metric_dict_test["G_GAN"] / opt.k_fold
+        metric_dict_test["G_L1"] = metric_dict_test["G_L1"] / opt.k_fold
         if opt.display_wandb == True:
             directory_ml = os.path.join(opt.results_dir,opt.name)
             i=1
