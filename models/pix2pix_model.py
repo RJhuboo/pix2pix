@@ -68,23 +68,22 @@ class Pix2PixModel(BaseModel):
         if opt.BPNN_mode == "True":
             self.BPNN = networks.BPNN_model(features=85,out_channels=6,n1=158,n2=211,n3=176,k1=3,k2=3,k3=3)
             load_filename = "BPNN_checkpoint_75.pth" # add by rehan
-            if isinstance(self.BPNN, torch.nn.DataParallel):
-                self.BPNN = self.BPNN.module
-            print('loading the model from %s' % load_filename)
-            state_dict = torch.load(load_filename, map_location=str(self.device))
-            if hasattr(state_dict, '_metadata'):
-                del state_dict._metadata
+            #if isinstance(self.BPNN, torch.nn.DataParallel):
+            #    self.BPNN = self.BPNN.module
+            #print('loading the model from %s' % load_filename)
+            #state_dict = torch.load(load_filename, map_location=str(self.device))
+            #if hasattr(state_dict, '_metadata'):
+            #    del state_dict._metadata
 
             # patch InstanceNorm checkpoints prior to 0.4
-            for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
-                self.__patch_instance_norm_state_dict(state_dict, self.BPNN, key.split('.'))
-            self.BPNN.load_state_dict(state_dict)
-                
+            #for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
+            #    self.__patch_instance_norm_state_dict(state_dict, self.BPNN, key.split('.'))
+            #self.BPNN.load_state_dict(state_dict)
+            self.BPNN.load_state_dict(torch.load(os.path.join(opt.checkpoint_BPNN,load_filename))) # load model parameters
             if len(self.gpu_ids) > 0:
                 assert(torch.cuda.is_available())
                 self.BPNN.to(self.gpu_ids[0])
                 self.BPNN = torch.nn.DataParallel(self.BPNN, self.gpu_ids)  # multi-GPUs            
-            #self.BPNN.load_state_dict(torch.load(os.path.join(opt.checkpoint_BPNN,check_name))) # load model parameters
             print("---- BPNN mode ---- :", self.BPNN_mode)
             for p in self.BPNN.parameters():
                 p.requires_grad = False
