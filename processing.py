@@ -161,8 +161,9 @@ if __name__ == '__main__':
            
     def objective(trial):
         # options for training
+        alphas = [0,0.00005,0.0005,0.005,0.05,0.5,1]
         opt = ProcessOptions().parse()   # get training options
-        opt.alpha = [0,0.00005,0.0005,0.005,0.05,0.5,1]
+        opt.alpha = alphas[trial]
         opt.BPNN_Loss = MSELoss
         # options for validation
         opt_test = Namespace(vars(opt))
