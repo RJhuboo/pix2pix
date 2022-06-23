@@ -177,12 +177,15 @@ if __name__ == '__main__':
         #dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
         # Spliting dataset into validation and train set 
         index = range(NB_DATA)
-        if k_fold > 1:
+        if opt._fold > 1:
             kf = KFold(n_splits = opt.k_fold, shuffle=True)
         else:
-            kf = train_test_split(k_fold,test_size = 0.2, random_state=42)
+            kf = train_test_split(index,test_size = 0.2, random_state=42)
             
-        for train_index, test_index in kf.split(index):
+        for k in range(opt.k_fold):
+            train_index = kf[0]
+            train_index = kf[1]
+
             model = create_model(opt)      # create a model given opt.model and other options
             model.setup(opt)               # regular setup: load and print networks; create schedulers
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
