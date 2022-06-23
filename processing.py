@@ -253,10 +253,13 @@ if __name__ == '__main__':
                 pickle.dump(metric_dict_train,f)
                 pickle.dump(metric_dict_test,f)
                 
-        return {'bpnn':np.min(metric_dict_test["BPNN"]),'psnr':np.max(metric_dict_test["psnr"],'alpha':opt.alpha[trial])
-    
+        return np.min(metric_dict_test["BPNN"]),np.max(metric_dict_test["psnr"]),opt.alpha[trial]
+    study ={'bpnn':[],'psnr':[],'alpha':[]}
     for n_trial in range(7):
-        study = objective(n_trial)
+        bp,ps,al = objective(n_trial)
+        study['bpnn'].append(bp)
+        study['psnr'].append(ps)
+        study['alpha'].append(al)
     with open("./pix2pix_BPNN_search.pkl","wb") as f:
         pickle.dump(study,f)
 
