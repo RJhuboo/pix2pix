@@ -153,17 +153,17 @@ def test(model,test_loader, epoch, opt_test):
         #webpage.save()  # save the HTML
     return np.mean(psnr_metric),np.mean(ssim_metric),np.mean(BPNN_save),np.mean(G_GAN_save),np.mean(G_L1_save),np.mean(D_fake_save),np.mean(D_real_save)
 
+def add_study(study,new_study):
+    
 
 ''' main '''
 if __name__ == '__main__':
-       
-    study = optuna.create_study(sampler=optuna.samplers.TPESampler(), directions =['minimize','maximize'])
-    
+           
     def objective(trial):
         # options for training
         opt = ProcessOptions().parse()   # get training options
-        opt.alpha = trial.suggest_categorical("alpha",[0,0.00005,0.0005,0.005,0.05,0.5,1])
-        opt.BPNN_Loss = trial.suggest_categorical("BPNN_loss",[MSELoss])
+        opt.alpha = [0,0.00005,0.0005,0.005,0.05,0.5,1]
+        opt.BPNN_Loss = MSELoss
         # options for validation
         opt_test = Namespace(vars(opt))
         # hard-code some parameters for test
@@ -253,9 +253,10 @@ if __name__ == '__main__':
                 pickle.dump(metric_dict_train,f)
                 pickle.dump(metric_dict_test,f)
                 
-        return np.min(metric_dict_test["BPNN"]), np.max(metric_dict_test["psnr"])
+        return {'bpnn':np.min(metric_dict_test["BPNN"]),'psnr':np.max(metric_dict_test["psnr"],'alpha':opt.alpha[trial])
     
-    study.optimize(objective,n_trials=7)
+    for n_trial in range(7):
+        study = objective(n_trial)
     with open("./pix2pix_BPNN_search.pkl","wb") as f:
         pickle.dump(study,f)
 
