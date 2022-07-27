@@ -138,9 +138,11 @@ class Pix2PixModel(BaseModel):
     def metrics(self):
         """Calculate PSNR and SSIM between fake_B and real_B.""" # Created by Rehan
         F_b = Variable( self.fake_B, requires_grad=False)
-        R_b = Variable( self.real_B, requires_grad=False) 
-        psnr_val = networks.PSNR(F_b, R_b, mask).cpu().detach().numpy())
-        ssim_val = ssim(x=F_b, y=R_b, mask).cpu().detach().numpy())
+        R_b = Variable( self.real_B, requires_grad=False)
+        short_path = ntpath.basename(self.image_paths[0])
+        name = os.path.splitext(short_path)[0]
+        psnr_val = networks.PSNR(F_b, R_b, self.mask_dir, name).cpu().detach().numpy())
+        ssim_val = ssim(x=F_b, y=R_b, data_range=1., downsample= False, directory=self.mask_dir, maskname=name).cpu().detach().numpy())
         return psnr_val, ssim_val
         
     #def Loss_extraction(self):
