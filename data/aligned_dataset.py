@@ -20,9 +20,11 @@ class AlignedDataset(BaseDataset):
         BaseDataset.__init__(self, opt)
         self.dir_AB = os.path.join(opt.dataroot, "train")  # get the image directory # change opt.phase to "train"
         self.AB_paths = sorted(make_dataset(self.dir_AB, opt.max_dataset_size))  # get image paths
+        self.mask_paths = sorted(make_dataset(opt.maskdir,opt.max_data_size))
         assert(self.opt.load_size >= self.opt.crop_size)   # crop_size should be smaller than the size of loaded image
         self.input_nc = self.opt.output_nc if self.opt.direction == 'BtoA' else self.opt.input_nc
         self.output_nc = self.opt.input_nc if self.opt.direction == 'BtoA' else self.opt.output_nc
+    
 
     def __getitem__(self, index):
         """Return a data point and its metadata information.
@@ -36,9 +38,13 @@ class AlignedDataset(BaseDataset):
             A_paths (str) - - image paths
             B_paths (str) - - image paths (same as A_paths)
         """
-        # read a image given a random integer index
+        # read an image given a random integer index
         AB_path = self.AB_paths[index]
         AB = Image.open(AB_path).convert('RGB')
+           
+        # read a mask given a random inter index
+        mask_path = self.mask_paths[index]
+        mask = Image.open(mask_path)
         # split AB image into A and B
         w, h = AB.size
         w2 = int(w / 2)
@@ -49,10 +55,12 @@ class AlignedDataset(BaseDataset):
         transform_params = get_params(self.opt, A.size)
         A_transform = get_transform(self.opt, transform_params, grayscale=(self.input_nc == 1))
         B_transform = get_transform(self.opt, transform_params, grayscale=(self.output_nc == 1))
+        mask_transform = get_transform(self.opt,convert = True, mask = True)
 
         A = A_transform(A)
         B = B_transform(B)
-        return {'A': A, 'B': B, 'A_paths': AB_path, 'B_paths': AB_path}
+        mask = mask_transform(mask)
+        return {'A': A, 'B': B, 'mask',mask, 'A_paths': AB_path, 'B_paths': AB_path}
 
     def __len__(self):
         """Return the total number of images in the dataset."""
