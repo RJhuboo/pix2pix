@@ -123,6 +123,7 @@ class Pix2PixModel(BaseModel):
         self.real_A = input['A' if AtoB else 'B'].to(self.device)
         self.real_B = input['B' if AtoB else 'A'].to(self.device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
+        self.mask = input['mask'].to(self.device)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -141,8 +142,8 @@ class Pix2PixModel(BaseModel):
         R_b = Variable( self.real_B, requires_grad=False)
         short_path = ntpath.basename(self.image_paths[0])
         name = os.path.splitext(short_path)[0]
-        psnr_val = networks.PSNR(F_b, R_b, self.mask_dir, name).cpu().detach().numpy())
-        ssim_val = ssim(x=F_b, y=R_b, data_range=1., downsample= False, directory=self.mask_dir, maskname=name).cpu().detach().numpy())
+        psnr_val = networks.PSNR(F_b, R_b, self.mask).cpu().detach().numpy())
+        ssim_val = ssim(x=F_b, y=R_b, data_range=1., downsample= False, mask=self.mask).cpu().detach().numpy())
         return psnr_val, ssim_val
         
     #def Loss_extraction(self):
