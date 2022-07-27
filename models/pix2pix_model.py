@@ -1,7 +1,7 @@
 import torch
 from .base_model import BaseModel
 from . import networks
-import pytorch_ssim
+import ssim
 from torch.autograd import Variable
 import numpy as np
 import os
