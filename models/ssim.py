@@ -18,7 +18,7 @@ import os
 
 def ssim(x: torch.Tensor, y: torch.Tensor, kernel_size: int = 11, kernel_sigma: float = 1.5,
          data_range: Union[int, float] = 1., reduction: str = 'mean', full: bool = False,
-         downsample: bool = True, k1: float = 0.01, k2: float = 0.03, directory: str = '', maskname: str='', device: type='cpu') -> List[torch.Tensor]:
+         downsample: bool = True, k1: float = 0.01, k2: float = 0.03, mask: torch.Tensor, device: type='cpu') -> List[torch.Tensor]:
     r"""Interface of Structural Similarity (SSIM) index.
     Inputs supposed to be in range ``[0, data_range]``.
     To match performance with skimage and tensorflow set ``'downsample' = True``.
@@ -50,11 +50,6 @@ def ssim(x: torch.Tensor, y: torch.Tensor, kernel_size: int = 11, kernel_sigma: 
     
     x = x / float(data_range)
     y = y / float(data_range)
-         
-    name = maskname[0].replace("png","bmp")
-    mask = io.imread(os.path.join(directory,name))
-    mask = mask / mask.max()
-    mask = torch.reshape(torch.tensor(mask),(1,1,512,512)).to(device)
     
     # Averagepool image if the size is large enough
     f = max(1, round(min(x.size()[-2:]) / 256))
