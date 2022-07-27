@@ -137,19 +137,11 @@ class Pix2PixModel(BaseModel):
     
     def metrics(self):
         """Calculate PSNR and SSIM between fake_B and real_B.""" # Created by Rehan
-        F_b = Variable( self.fake_B,  requires_grad=False)
-        R_b = Variable( self.real_B, requires_grad = False)
-        ssim = []
-        psnr = []
-        for b in range(F_b.size(0)):
-            img1, img2 = F_b[b,0,:,:], R_b[b,0,:,:] 
-            psnr.append(networks.PSNR(img1, img2).cpu().detach().numpy())
-            img1, img2 = img1.reshape(1,1,512,512), img2.reshape(1,1,512,512)
-            ssim.append(pytorch_ssim.ssim(img1, img2).cpu().detach().numpy())
-        ssim = np.mean(ssim)
-        psnr = np.mean(psnr)
-        del F_b, R_b, img1, img2
-        return psnr, ssim
+        F_b = Variable( self.fake_B, requires_grad=False)
+        R_b = Variable( self.real_B, requires_grad=False) 
+        psnr_val = networks.PSNR(F_b, R_b, mask).cpu().detach().numpy())
+        ssim_val = ssim(x=F_b, y=R_b, mask).cpu().detach().numpy())
+        return psnr_val, ssim_val
         
     #def Loss_extraction(self):
      #   BPNN_extraction = self.Bio_param() * self.opt.lambda_L1
