@@ -56,7 +56,7 @@ class AlignedDataset(BaseDataset):
         transform_params = get_params(self.opt, A.size)
         A_transform = get_transform(self.opt, transform_params, grayscale=(self.input_nc == 1))
         B_transform = get_transform(self.opt, transform_params, grayscale=(self.output_nc == 1))
-        mask_transform = get_transform(self.opt,convert = False, grayscale=True)
+        mask_transform = get_transform(self.opt,convert = True, mask=True, grayscale=True)
         
         A = A_transform(A)
         B = B_transform(B)
