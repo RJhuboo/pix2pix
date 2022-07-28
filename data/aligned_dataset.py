@@ -1,6 +1,7 @@
 import os
 from data.base_dataset import BaseDataset, get_params, get_transform
 from data.image_folder import make_dataset
+import torchvision.transforms as transforms
 from PIL import Image
 import torch
 
@@ -50,15 +51,15 @@ class AlignedDataset(BaseDataset):
         w2 = int(w / 2)
         A = AB.crop((0, 0, w2, h))
         B = AB.crop((w2, 0, w, h))
-        
-        print("before transform",torch.max(torch.Tensor(A)))
-        print(torch.min(torch.Tensor(A)))
+        convert = transforms.ToTensor()
+        print("before transform",torch.max(convert(A)))
+        print(torch.min(conver(A)))
         # apply the same transform to both A and B
         transform_params = get_params(self.opt, A.size)
         A_transform = get_transform(self.opt, transform_params, grayscale=(self.input_nc == 1))
         B_transform = get_transform(self.opt, transform_params, grayscale=(self.output_nc == 1))
         mask_transform = get_transform(self.opt,convert = True, grayscale=True, mask = True)
-
+        
         A = A_transform(A)
         B = B_transform(B)
         print("after transform",torch.max(A))
