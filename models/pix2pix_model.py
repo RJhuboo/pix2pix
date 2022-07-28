@@ -143,6 +143,8 @@ class Pix2PixModel(BaseModel):
         R_b = Variable( self.real_B, requires_grad=False)
         short_path = ntpath.basename(self.image_paths[0])
         name = os.path.splitext(short_path)[0]
+        print(torch.max(R_b))
+        print(torch.min(R_b))
         psnr_val = networks.PSNR(F_b, R_b, self.mask).cpu().detach().numpy()
         ssim_val = ssim(x=F_b, y=R_b, mask=self.mask, data_range=1., downsample= False).cpu().detach().numpy()
         print("psnr_val raw :", psnr_val)
