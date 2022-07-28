@@ -139,8 +139,8 @@ class Pix2PixModel(BaseModel):
     
     def metrics(self):
         """Calculate PSNR and SSIM between fake_B and real_B.""" # Created by Rehan
-        F_b = Variable( self.fake_B, requires_grad=False)
-        R_b = Variable( self.real_B, requires_grad=False)
+        F_b = (Variable( self.fake_B, requires_grad=False) + 1) /2
+        R_b = (Variable( self.real_B, requires_grad=False) + 1) /2
         short_path = ntpath.basename(self.image_paths[0])
         name = os.path.splitext(short_path)[0]
         print(torch.max(R_b))
