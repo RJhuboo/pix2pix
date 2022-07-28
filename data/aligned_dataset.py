@@ -53,7 +53,7 @@ class AlignedDataset(BaseDataset):
         B = AB.crop((w2, 0, w, h))
         convert = transforms.ToTensor()
         print("before transform",torch.max(convert(A)))
-        print(torch.min(conver(A)))
+        print(torch.min(convert(A)))
         # apply the same transform to both A and B
         transform_params = get_params(self.opt, A.size)
         A_transform = get_transform(self.opt, transform_params, grayscale=(self.input_nc == 1))
