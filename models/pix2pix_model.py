@@ -5,6 +5,7 @@ from .ssim import ssim
 from torch.autograd import Variable
 import numpy as np
 import os
+import ntpath
 
 class Pix2PixModel(BaseModel):
     """ This class implements the pix2pix model, for learning a mapping from input images to output images given paired data.
