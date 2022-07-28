@@ -255,7 +255,7 @@ if __name__ == '__main__':
                 
         return np.min(metric_dict_test["BPNN"]),np.max(metric_dict_test["psnr"]),opt.alpha[trial]
     study ={'bpnn':[],'psnr':[],'alpha':[]}
-    for n_trial in range(7):
+    for n_trial in range(2):
         bp,ps,al = objective(n_trial)
         study['bpnn'].append(bp)
         study['psnr'].append(ps)
