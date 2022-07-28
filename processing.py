@@ -184,7 +184,7 @@ if __name__ == '__main__':
             
         for k in range(opt.k_fold):
             train_index = kf[0]
-            train_index = kf[1]
+            test_index = kf[1]
 
             model = create_model(opt)      # create a model given opt.model and other options
             model.setup(opt)               # regular setup: load and print networks; create schedulers
