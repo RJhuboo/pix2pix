@@ -356,8 +356,8 @@ def cal_gradient_penalty(netD, real_data, fake_data, device, type='mixed', const
         return 0.0, None
         
 
-def PSNR(img1, img2):
-    mse = torch.mean((img1 - img2) ** 2)
+def PSNR(img1, img2, mask):
+    mse = torch.sum(((img1 - img2) * mask) ** 2) / torch.sum(mask)
     return 20 * torch.log10(1.0 / torch.sqrt(mse))
 
 
