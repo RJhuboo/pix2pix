@@ -61,8 +61,6 @@ class AlignedDataset(BaseDataset):
         B = B_transform(B)
 
         mask = mask_transform(mask)
-        print("mask max :", torch.max(mask))
-        print("mask min :", torch.min(mask))
         return {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
 
     def __len__(self):
