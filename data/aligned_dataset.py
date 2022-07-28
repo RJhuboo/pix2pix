@@ -2,7 +2,7 @@ import os
 from data.base_dataset import BaseDataset, get_params, get_transform
 from data.image_folder import make_dataset
 from PIL import Image
-
+import torch
 
 class AlignedDataset(BaseDataset):
     """A dataset class for paired image dataset.
