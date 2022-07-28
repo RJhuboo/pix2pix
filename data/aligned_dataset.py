@@ -20,7 +20,7 @@ class AlignedDataset(BaseDataset):
         BaseDataset.__init__(self, opt)
         self.dir_AB = os.path.join(opt.dataroot, "train")  # get the image directory # change opt.phase to "train"
         self.AB_paths = sorted(make_dataset(self.dir_AB, opt.max_dataset_size))  # get image paths
-        self.mask_paths = sorted(make_dataset(opt.maskdir,opt.max_data_size))
+        self.mask_paths = sorted(make_dataset(opt.maskdir,opt.max_dataset_size))
         assert(self.opt.load_size >= self.opt.crop_size)   # crop_size should be smaller than the size of loaded image
         self.input_nc = self.opt.output_nc if self.opt.direction == 'BtoA' else self.opt.input_nc
         self.output_nc = self.opt.input_nc if self.opt.direction == 'BtoA' else self.opt.output_nc
