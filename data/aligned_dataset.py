@@ -51,7 +51,6 @@ class AlignedDataset(BaseDataset):
         w2 = int(w / 2)
         A = AB.crop((0, 0, w2, h))
         B = AB.crop((w2, 0, w, h))
-        convert = transforms.ToTensor()
         # apply the same transform to both A and B
         transform_params = get_params(self.opt, A.size)
         A_transform = get_transform(self.opt, transform_params, grayscale=(self.input_nc == 1))
@@ -61,7 +60,7 @@ class AlignedDataset(BaseDataset):
         A = A_transform(A)
         B = B_transform(B)
 
-        mask = mask_transform(mask) / 255
+        mask = mask_transform(mask)
         print("mask max :", torch.max(mask))
         print("mask min :", torch.min(mask))
         return {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
