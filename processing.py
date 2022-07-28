@@ -177,7 +177,7 @@ if __name__ == '__main__':
         #dataset_test = create_dataset(opt_test)  # create a dataset given opt.dataset_mode and other options
         # Spliting dataset into validation and train set 
         index = range(NB_DATA)
-        if opt._fold > 1:
+        if opt.k_fold > 1:
             kf = KFold(n_splits = opt.k_fold, shuffle=True)
         else:
             kf = train_test_split(index,test_size = 0.2, random_state=42)
