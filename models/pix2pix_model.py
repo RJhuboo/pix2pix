@@ -143,7 +143,7 @@ class Pix2PixModel(BaseModel):
         short_path = ntpath.basename(self.image_paths[0])
         name = os.path.splitext(short_path)[0]
         psnr_val = networks.PSNR((F_b, R_b, self.mask).cpu().detach().numpy())
-        ssim_val = ssim(x=F_b, y=R_b, data_range=1., downsample= False, mask=self.mask).cpu().detach().numpy())
+        ssim_val = ssim(x=F_b, y=R_b, data_range=1., downsample= False, mask=self.mask).cpu().detach().numpy()
         print("psnr_val raw :", psnr_val)
         print("ssim_val raw :", ssim_val)
         return psnr_val, ssim_val
