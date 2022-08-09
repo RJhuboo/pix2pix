@@ -138,7 +138,7 @@ def test(model,test_loader, epoch, opt_test):
                 print("path where images are saves during validation : ", img_path)
                 if i % 5 == 0:  # save images to an HTML file
                     print('processing (%04d)-th image... %s' % (i, img_path))
-                #save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
+                save_images(webpage, visuals, img_path, aspect_ratio=opt_test.aspect_ratio, width=opt_test.display_winsize)
             psnr, ssim = model.metrics()
             psnr_metric.append(psnr.item())
             ssim_metric.append(ssim.item())
@@ -160,7 +160,7 @@ if __name__ == '__main__':
            
     def objective(trial):
         # options for training
-        alphas = [0,0.00005,0.0005,0.005,0.05,0.5,1]
+        alphas = [0]
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = alphas[trial]
         opt.BPNN_Loss = MSELoss
@@ -247,20 +247,22 @@ if __name__ == '__main__':
             i=1
             if os.path.exists(directory_ml) is False:
                 os.mkdir(directory_ml)
-            while os.path.exists(os.path.join(directory_ml,"metric_loss"+str(i)+".pkl")) == True:
+            while os.path.exists(os.path.join(directory_ml,"metric_train_loss"+str(i)+".pkl")) == True:
                 i=i+1
-            with open(os.path.join(directory_ml,"metric_loss"+str(i)+".pkl"),"wb") as f:
+            with open(os.path.join(directory_ml,"metric_train_loss"+str(i)+".pkl"),"wb") as f:
                 pickle.dump(metric_dict_train,f)
+            with open(os.path.join(directory_ml,"metric_test_loss"+str(i)+".pkl"),"wb") as f:
                 pickle.dump(metric_dict_test,f)
-                
-        return np.min(metric_dict_test["BPNN"]),np.max(metric_dict_test["psnr"]),opt.alpha[trial]
-    study ={'bpnn':[],'psnr':[],'alpha':[]}
-    for n_trial in range(2):
-        bp,ps,al = objective(n_trial)
+        return np.min(metric_dict_test["BPNN"]),np.max(metric_dict_test["psnr"]), np.max(metric_dict_test["ssim"]), opt.alpha
+
+    study ={'bpnn':[],'psnr':[],'ssim':[],'alpha':[]}
+    for n_trial in range(1):
+        bp,ps,si,al = objective(n_trial)
         study['bpnn'].append(bp)
         study['psnr'].append(ps)
         study['alpha'].append(al)
-    with open("./pix2pix_BPNN_search.pkl","wb") as f:
+        study['ssim'].append(si)
+    with open("./cross_MSE_BPNN.pkl","wb") as f:
         pickle.dump(study,f)
 
             

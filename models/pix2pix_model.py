@@ -67,8 +67,8 @@ class Pix2PixModel(BaseModel):
         # define a BPNN network for biological parameter estimation by Rehan
         self.BPNN_mode = opt.BPNN_mode
         if opt.BPNN_mode == "True":
-            self.BPNN = networks.BPNN_model(features=85,out_channels=6,n1=158,n2=211,n3=176,k1=3,k2=3,k3=3)
-            load_filename = "BPNN_checkpoint_75.pth" # add by rehan
+            self.BPNN = networks.BPNN_model(features=40,out_channels=6,n1=127,n2=157,n3=153,k1=3,k2=3,k3=3)
+            load_filename = "./checkpoints_bpnn/BPNN_checkpoint_84.pth" # add by rehan
             #if isinstance(self.BPNN, torch.nn.DataParallel):
             #    self.BPNN = self.BPNN.module
             #print('loading the model from %s' % load_filename)
