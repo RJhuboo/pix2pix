@@ -63,7 +63,7 @@ class AlignedDataset(BaseDataset):
 
         mask = mask_transform(mask)
         sample = {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
-        if transform:
+        if self.transform:
             sample = self.transform(sample)
         return 
 

@@ -262,7 +262,7 @@ if __name__ == '__main__':
         study['psnr'].append(ps)
         study['alpha'].append(al)
         study['ssim'].append(si)
-    with open("./cross_MSE_BPNN.pkl","wb") as f:
+    with open("./test.pkl","wb") as f:
         pickle.dump(study,f)
 
             
