@@ -62,11 +62,10 @@ class AlignedDataset(BaseDataset):
         B = B_transform(B)
 
         mask = mask_transform(mask)
+        sample = {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
         if transform:
-            A = self.transform(A)
-            B = self.transform(B)
-            mask = self.transform(mask)
-        return {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
+            sample = self.transform(sample)
+        return 
 
     def __len__(self):
         """Return the total number of images in the dataset."""
