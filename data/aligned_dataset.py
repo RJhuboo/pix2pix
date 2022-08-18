@@ -12,7 +12,7 @@ class AlignedDataset(BaseDataset):
     During test time, you need to prepare a directory '/path/to/data/test'.
     """
 
-    def __init__(self, opt,transform=None):
+    def __init__(self, opt,transform=False):
         """Initialize this dataset class.
 
         Parameters:
