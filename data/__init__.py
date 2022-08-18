@@ -72,17 +72,11 @@ class CustomDatasetDataLoader():
         self.opt = opt
         dataset_class = find_dataset_using_name(opt.dataset_mode)
         if opt.augmented_data:
-            transform = transforms.Compose([
-                transforms.RandomRotation(degrees=(0,90)),
-                transforms.RandomHorizontalFlip(p=0.3),
-                transforms.RandomVerticalFlip(p=0.3),
-                transforms.ToTensor()
-                ])
-            dataset_1 = dataset_class(opt,transform)
-            dataset_2 = dataset_class(opt,transform)
+            dataset_1 = dataset_class(opt,transform=False)
+            dataset_2 = dataset_class(opt,transform=True)
             self.dataset=ConcatDataset([dataset_1,dataset_2])
         else:
-            self.dataset=dataset_class(opt)
+            self.dataset=dataset_class(opt,transform=False)
         print("dataset [%s] was created" % type(self.dataset).__name__)
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset,
