@@ -75,7 +75,7 @@ def get_params(opt, size):
 
     flip = random.random() > 0.5
     flipv = random.random() > 0.3
-    rotate = round(random.random() * 90)
+    rotate = random.randint(25,90)
 
     return {'crop_pos': (x, y), 'flip': flip, 'flipv':flipv, 'rotate':rotate}
 
