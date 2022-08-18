@@ -68,16 +68,25 @@ class CustomDatasetDataLoader():
         Step 1: create a dataset instance given the name [dataset_mode]
         Step 2: create a multi-threaded data loader.
         """
-        self.opt = opt
-        dataset_class = find_dataset_using_name(opt.dataset_mode)
-        self.dataset = dataset_class(opt)
-        print("dataset [%s] was created" % type(self.dataset).__name__)
-        self.dataloader = torch.utils.data.DataLoader(
-            self.dataset,
-            sampler = index,
-            batch_size=opt.batch_size,
-            #shuffle=not opt.serial_batches,
-            num_workers=int(opt.num_threads))
+       self.opt = opt
+       dataset_class = find_dataset_using_name(opt.dataset_mode)
+       if opt.augmented_data:
+        transform = transforms.Compose([
+        transforms.RandomRotation(degrees=(0,90)),
+        transforms.RandomHorizontalFlip(p=0.3),
+        transforms.RandomVerticalFlip(p=0.3),
+        transforms.ToTensor()
+        ])
+        self.dataset_1 = dataset_class(opt,transform)
+        self.dataset_2 = dataset_class(opt,transform)
+       self.dataset=dataset_class(opt)
+       print("dataset [%s] was created" % type(self.dataset).__name__)
+       self.dataloader = torch.utils.data.DataLoader(
+           self.dataset,
+           sampler = index,
+           batch_size=opt.batch_size,
+           #shuffle=not opt.serial_batches,
+           num_workers=int(opt.num_threads))
 
     def load_data(self):
         return self
