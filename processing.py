@@ -57,7 +57,7 @@ def train(model, train_loader, epoch, opt):
     model.update_learning_rate()    # update learning rates in the beginning of every epoch.
     psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN_save = [],[],[],[],[],[],[]
     #loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[],"psnr":[],"ssim":[]}
-
+    print("length of train_loader :", len(train_loader))
     for i, data in enumerate(train_loader):  # inner loop within one epoch
         iter_start_time = time.time()  # timer for computation per iteration
         if total_iters % opt.print_freq == 0:
