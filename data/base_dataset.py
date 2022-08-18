@@ -107,7 +107,7 @@ def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, conve
         if params['flipv']:
             transform_list.append(transforms.Lambda(lambda: img: __flipvertical(img,params['flipv'])))
     if tranform == True:
-        transform_list.append(transforms.Lambda(lambda img: __rotate(img, params['rotate'])))
+        transform_list.append(transforms.Lambda(lambda: img: __rotate(img, params['rotate'])))
     if convert:
         transform_list += [transforms.ToTensor()]
         if mask == False:
