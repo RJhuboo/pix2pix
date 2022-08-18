@@ -63,9 +63,9 @@ class AlignedDataset(BaseDataset):
 
         mask = mask_transform(mask)
         if transform:
-            A = transform(A)
-            B = transform(B)
-            mask = transform(mask)
+            A = self.transform(A)
+            B = self.transform(B)
+            mask = self.transform(mask)
         return {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
 
     def __len__(self):
