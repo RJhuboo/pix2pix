@@ -27,7 +27,7 @@ class AlignedDataset(BaseDataset):
         self.output_nc = self.opt.input_nc if self.opt.direction == 'BtoA' else self.opt.output_nc
     
 
-    def __getitem__(self, index):
+    def __getitem__(self, index, transform):
         """Return a data point and its metadata information.
 
         Parameters:
@@ -61,6 +61,10 @@ class AlignedDataset(BaseDataset):
         B = B_transform(B)
 
         mask = mask_transform(mask)
+        if transform:
+            A = transform(A)
+            B = transform(B)
+            mask = transform(mask)
         return {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
 
     def __len__(self):
