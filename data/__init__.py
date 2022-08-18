@@ -14,6 +14,7 @@ import importlib
 import torch.utils.data
 from data.base_dataset import BaseDataset
 from torchvision import transforms, utils
+from torch.utils.data import ConcatDataset
 
 def find_dataset_using_name(dataset_name):
     """Import the module "data/[dataset_name]_dataset.py".
@@ -77,9 +78,11 @@ class CustomDatasetDataLoader():
         transforms.RandomVerticalFlip(p=0.3),
         transforms.ToTensor()
         ])
-        self.dataset_1 = dataset_class(opt,transform)
-        self.dataset_2 = dataset_class(opt,transform)
-       self.dataset=dataset_class(opt)
+        dataset_1 = dataset_class(opt,transform)
+        dataset_2 = dataset_class(opt,transform)
+        self.dataset=ConcatDataset([dataset_1,dataset_2])
+       else:
+        self.dataset=dataset_class(opt)
        print("dataset [%s] was created" % type(self.dataset).__name__)
        self.dataloader = torch.utils.data.DataLoader(
            self.dataset,
