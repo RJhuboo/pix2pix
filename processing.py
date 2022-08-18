@@ -33,7 +33,7 @@ import torch
 import numpy as np
 import pickle
 
-NB_DATA = 4474
+NB_DATA = 4474*2
 
 class Namespace:
     def __init__(self, kwargs):
@@ -190,6 +190,7 @@ if __name__ == '__main__':
             model.setup(opt)               # regular setup: load and print networks; create schedulers
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
             dataset_size = len(dataset_train)    # get the number of images in the dataset.
+            print("dataset size"=dataset_size)
             dataset_test = create_dataset(opt_test,test_index)
             metric_dict_train = {"psnr":np.zeros(opt.n_epochs + opt.n_epochs_decay),
                                  "ssim":np.zeros(opt.n_epochs + opt.n_epochs_decay),
