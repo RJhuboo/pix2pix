@@ -185,7 +185,7 @@ if __name__ == '__main__':
         for k in range(opt.k_fold):
             train_index = kf[0]
             test_index = kf[1]
-
+            print("length given by the k_folder:", train_index)
             model = create_model(opt)      # create a model given opt.model and other options
             model.setup(opt)               # regular setup: load and print networks; create schedulers
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
