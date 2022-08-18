@@ -41,6 +41,7 @@ class BaseOptions():
         parser.add_argument('--no_dropout', action='store_true', help='no dropout for the generator')
         parser.add_argument('--deconv', action='store_true', help='Use Deconvolution layer at the end because the size of LR is not the same than the HR') #add by rehan
         # dataset parameters
+        parser.add_argument('--augmented_data', default = True, help='choose to augmentate the number of data')
         parser.add_argument('--dataset_mode', type=str, default='unaligned', help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
         parser.add_argument('--direction', type=str, default='AtoB', help='AtoB or BtoA')
         parser.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make batches, otherwise takes them randomly')
