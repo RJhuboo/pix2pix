@@ -181,7 +181,9 @@ if __name__ == '__main__':
             kf = KFold(n_splits = opt.k_fold, shuffle=True)
         else:
             kf = train_test_split(index,test_size = 0.2, random_state=42)
-            
+        print("length of the entire dataset:", len(index))
+        print("kf0",len(kf[0]))
+        print("kf1",len(kf[1]))
         for k in range(opt.k_fold):
             train_index = kf[0]
             test_index = kf[1]
