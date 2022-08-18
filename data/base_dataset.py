@@ -74,9 +74,10 @@ def get_params(opt, size):
     y = random.randint(0, np.maximum(0, new_h - opt.crop_size))
 
     flip = random.random() > 0.5
+    flipv = random.random() > 0.3
     rotate = round(random.random() * 90)
 
-    return {'crop_pos': (x, y), 'flip': flip, 'rotate':rotate}
+    return {'crop_pos': (x, y), 'flip': flip, 'flipv':flipv, 'rotate':rotate}
 
 
 def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, convert=True, mask = False, transform=False):
@@ -103,6 +104,8 @@ def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, conve
             transform_list.append(transforms.RandomHorizontalFlip())
         elif params['flip']:
             transform_list.append(transforms.Lambda(lambda img: __flip(img, params['flip'])))
+        if params['flipv']:
+            transform_list.append(transforms.Lambda(lambda: img: __flipvertical(img,params['flipv'])))
     if tranform == True:
         transform_list.append(transforms.Lambda(lambda img: __rotate(img, params['rotate'])))
     if convert:
@@ -149,6 +152,12 @@ def __crop(img, pos, size):
 def __flip(img, flip):
     if flip:
         return img.transpose(Image.FLIP_LEFT_RIGHT)
+    return img
+
+
+def __flipvertical(img, flip):
+    if flip:
+        return img.transpose(Image.FLIP_TOP_BOTTOM)
     return img
 
 
