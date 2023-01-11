@@ -181,13 +181,9 @@ if __name__ == '__main__':
             kf = KFold(n_splits = opt.k_fold, shuffle=True)
         else:
             kf = train_test_split(index,test_size = 0.2, random_state=42)
-        print("length of the entire dataset:", len(index))
-        print("kf0",len(kf[0]))
-        print("kf1",len(kf[1]))
         for k in range(opt.k_fold):
             train_index = kf[0]
             test_index = kf[1]
-            print("length given by the k_folder:", train_index)
             model = create_model(opt)      # create a model given opt.model and other options
             model.setup(opt)               # regular setup: load and print networks; create schedulers
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
@@ -265,7 +261,7 @@ if __name__ == '__main__':
         study['psnr'].append(ps)
         study['alpha'].append(al)
         study['ssim'].append(si)
-    with open("./test.pkl","wb") as f:
+    with open("./result_wthBPNN.pkl","wb") as f:
         pickle.dump(study,f)
 
             

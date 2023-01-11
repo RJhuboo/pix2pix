@@ -75,7 +75,6 @@ class CustomDatasetDataLoader():
             dataset_1 = dataset_class(opt,transform=False)
             dataset_2 = dataset_class(opt,transform=True)
             self.dataset=ConcatDataset([dataset_1,dataset_2])
-            print("dans dataloader:",len(self.dataset))
         else:
             self.dataset=dataset_class(opt,transform=False)
         print("dataset [%s] was created" % type(self.dataset).__name__)
@@ -85,8 +84,7 @@ class CustomDatasetDataLoader():
             batch_size=opt.batch_size,
             #shuffle=not opt.serial_batches,
             num_workers=int(opt.num_threads))
-        print("apres dataloader",self.dataloader.size)
-
+        
     def load_data(self):
         return self
 
