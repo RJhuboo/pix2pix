@@ -33,7 +33,7 @@ import torch
 import numpy as np
 import pickle
 
-NB_DATA = 4474*2
+NB_DATA = 7100
 
 class Namespace:
     def __init__(self, kwargs):
@@ -164,6 +164,7 @@ if __name__ == '__main__':
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = alphas[trial]
         opt.BPNN_Loss = MSELoss
+        opt.mask_dir = "../FSRCNN/data/HR/Train_trab_mask"
         # options for validation
         opt_test = Namespace(vars(opt))
         # hard-code some parameters for test
