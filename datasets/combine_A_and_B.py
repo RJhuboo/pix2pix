@@ -13,10 +13,10 @@ def image_write(path_A, path_B, path_AB):
 
 
 parser = argparse.ArgumentParser('create image pairs')
-parser.add_argument('--fold_A', dest='fold_A', help='input directory for image A', type=str, default='../../BPNN/data/LR_trab')
-parser.add_argument('--fold_B', dest='fold_B', help='input directory for image B', type=str, default='../../BPNN/data/ROI_trab')
+parser.add_argument('--fold_A', dest='fold_A', help='input directory for image A', type=str, default='../../FSRCNN/data/LR/Train_trab')
+parser.add_argument('--fold_B', dest='fold_B', help='input directory for image B', type=str, default='../../FSRCNN/data/HR/Train_Label_trab_100')
 parser.add_argument('--fold_AB', dest='fold_AB', help='output directory', type=str, default='./TRAB_AB')
-parser.add_argument('--num_imgs', dest='num_imgs', help='number of images', type=int, default=1000000)
+parser.add_argument('--num_imgs', dest='num_imgs', help='number of images', type=int, default=7100)
 parser.add_argument('--use_AB', dest='use_AB', help='if true: (0001_A, 0001_B) to (0001_AB)', action='store_true')
 parser.add_argument('--no_multiprocessing', dest='no_multiprocessing', help='If used, chooses single CPU execution instead of parallel execution', action='store_true',default=False)
 parser.add_argument('--resize_A', dest='resize_A', help="If true: A is resized to the match the size of B", default = True)
