@@ -88,9 +88,7 @@ def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, conve
         transform_list.append(transforms.RandomHorizontalFlip(p=0.3))
         transform_list.append(transforms.RandomVerticalFlip(p=0.3))
         transform_list.append(transforms.RandomAffine(degrees=(0,1),translate=(0.1,0.1)))
-        transform_list.append(transforms.ToTensor())
         
-    
     if grayscale:
         transform_list.append(transforms.Grayscale(1))
     if 'resize' in opt.preprocess:
