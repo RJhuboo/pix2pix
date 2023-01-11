@@ -67,8 +67,8 @@ class Pix2PixModel(BaseModel):
         # define a BPNN network for biological parameter estimation by Rehan
         self.BPNN_mode = opt.BPNN_mode
         if opt.BPNN_mode == "True":
-            self.BPNN = networks.BPNN_model(features=40,out_channels=6,n1=127,n2=157,n3=153,k1=3,k2=3,k3=3)
-            load_filename = "./checkpoints_bpnn/BPNN_checkpoint_augmented.pth" # add by rehan
+            self.BPNN = networks.BPNN_model(features=36,out_channels=9,n1=135,n2=148,n3=121,k1=3,k2=3,k3=3)
+            load_filename = "./checkpoints_bpnn/BPNN_checkpoint_146.pth" # add by rehan
             #if isinstance(self.BPNN, torch.nn.DataParallel):
             #    self.BPNN = self.BPNN.module
             #print('loading the model from %s' % load_filename)
@@ -132,10 +132,10 @@ class Pix2PixModel(BaseModel):
                 
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
-        self.P_fake = self.BPNN(self.fake_B)
-        self.P_real = self.BPNN(self.real_B)
+        self.P_fake = self.BPNN(self.mask,self.fake_B)
+        self.P_real = self.BPNN(self.mask,self.real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
-        return L1_BPNN
+        return L1_BPNN.item()
     
     def metrics(self):
         """Calculate PSNR and SSIM between fake_B and real_B.""" # Created by Rehan
