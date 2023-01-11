@@ -160,11 +160,10 @@ if __name__ == '__main__':
            
     def objective(trial):
         # options for training
-        alphas = [0]
+        alphas = [0.0001,0.001,0.01]
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = alphas[trial]
         opt.BPNN_Loss = MSELoss
-        opt.mask_dir = "../FSRCNN/data/HR/Train_trab_mask"
         # options for validation
         opt_test = Namespace(vars(opt))
         # hard-code some parameters for test
@@ -181,7 +180,7 @@ if __name__ == '__main__':
         if opt.k_fold > 1:
             kf = KFold(n_splits = opt.k_fold, shuffle=True)
         else:
-            kf = train_test_split(index,test_size = 0.2, random_state=42)
+            kf = train_test_split(index,train_size=6100,test_size=1000, random_state=42)
         for k in range(opt.k_fold):
             train_index = kf[0]
             test_index = kf[1]
