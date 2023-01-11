@@ -214,13 +214,15 @@ def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal'
 class NeuralNet(nn.Module):
     def __init__(self,n1,n2,n3,out_channels):
         super().__init__()
-        self.fc1 = nn.Linear(64*64*64,n1)
+        self.fc1 = nn.Linear((64*64*64)+(512*512),n1)
         self.fc2 = nn.Linear(n1,n2)
         self.fc3 = nn.Linear(n2,n3)
         #self.fc5 = nn.Linear(n3,20)
         self.fc4 = nn.Linear(n3,out_channels)
-    def forward(self,x):
+    def forward(self,mask,x):
+        mask = torch.flatten(mask,1)
         x = torch.flatten(x,1)
+        x = torch.cat((x,mask),1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
@@ -243,11 +245,11 @@ class BPNN_model(nn.Module):
         self.neural = NeuralNet(n1,n2,n3,out_channels)
         # dropout
         # self.dropout = nn.Dropout(0.25)
-    def forward(self, x):
+    def forward(self,mask, x):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = self.pool(F.relu(self.conv3(x)))
-        x = self.neural(x)
+        x = self.neural(mask,x)
         #x = torch.flatten(x,1)
         return x 
     
