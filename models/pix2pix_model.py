@@ -4,7 +4,7 @@ from . import networks
 from .ssim import ssim
 from torch.autograd import Variable
 import cv2
-import skimage.filters import threshold_otsu
+from skimage.filters import threshold_otsu
 import numpy as np
 import os
 import ntpath
