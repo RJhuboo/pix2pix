@@ -3,6 +3,8 @@ from .base_model import BaseModel
 from . import networks
 from .ssim import ssim
 from torch.autograd import Variable
+import cv2
+import skimage.filters import threshold_otsu
 import numpy as np
 import os
 import ntpath
@@ -132,8 +134,12 @@ class Pix2PixModel(BaseModel):
                 
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
-        self.P_fake = self.BPNN(self.mask,self.fake_B)
-        self.P_real = self.BPNN(self.mask,self.real_B)
+        fake_B = self.fake_B.cpu().detach().numpy()
+        real_B = self.real_B.cput().detach().numpy()
+        fake_B, real_B = cv2.GaussianBlur(fake_B,(5,5),0), cv2.GaussianBlur(real_B,(5,5),0)
+        fake_B, real_B = threshold_otsu(fake_B),threshold_otsu(real_B)
+        self.P_fake = self.BPNN(self.mask,torch.from_numpy(fake_B).to(device))
+        self.P_real = self.BPNN(self.mask,torch.from_numpy(real_B).to(device))
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
         return L1_BPNN.item()
     
