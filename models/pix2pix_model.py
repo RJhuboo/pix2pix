@@ -143,6 +143,8 @@ class Pix2PixModel(BaseModel):
         print(np.shape(fake_B))
         t1, t2 = threshold_otsu(fake_B),threshold_otsu(real_B)
         fake_B, real_B = fake_B>t1, real_B>t2
+        fake_B = fake_B.astype("float32")
+        real_B = real_B.astype("float32")
         print(np.shape(real_B))
         #fake_B = np.ndarray(shape=,dtype
         fake_B = torch.from_numpy(fake_B).to(self.device)
