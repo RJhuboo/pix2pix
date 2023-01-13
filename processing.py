@@ -146,14 +146,17 @@ def test(model,test_loader, epoch, opt_test):
             psnr, ssim = model.metrics()
             psnr_list.append(psnr)
             ssim_list.append(ssim)
-            if opt_test.BPNN_mode == "False":
-                bpnn = model.Loss_extraction()
-                bpnn = bpnn.cpu().detach().numpy()
-                bpnn_list.append(bpnn)
-                bpnn = np.mean(bpnn_list)
+            #if opt_test.BPNN_mode == "False":
+            bpnn = model.Loss_extraction()
+            bpnn = bpnn.cpu().detach().numpy()
+            bpnn_list.append(bpnn)
+            bpnn_mean = np.mean(bpnn_list)
         psnr, ssim = np.mean(psnr_list), np.mean(ssim_list)
         metric_dict_test["psnr test"].append(psnr)
         metric_dict_test["ssim test"].append(ssim)
+        metric_dict_test["bpnn test"].append(bpnn_mean)
+        print("-----Test-----")
+        print("BPNN Loss:",bpnn_mean)
         #if opt_test.BPNN_mode == "False":
           #  metric_dict_test["bpnn test metric"].append(bpnn)
         directory_ml = os.path.join(opt.results_dir,opt.name)
