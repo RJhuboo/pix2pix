@@ -145,8 +145,8 @@ class Pix2PixModel(BaseModel):
         fake_B, real_B = fake_B>t1, real_B>t2
         print(np.shape(real_B))
         #fake_B = np.ndarray(shape=,dtype
-        fake_B = torch.from_numpy(fake_B).to(device)
-        real_B = torch.from_numpy(real_B).to(device)
+        fake_B = torch.from_numpy(fake_B).to(self.device)
+        real_B = torch.from_numpy(real_B).to(self.device)
         self.P_fake = self.BPNN(self.mask,fake_B)
         self.P_real = self.BPNN(self.mask,real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
