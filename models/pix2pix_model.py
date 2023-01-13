@@ -135,10 +135,10 @@ class Pix2PixModel(BaseModel):
                 
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
-        fake_B = self.fake_B.cpu().detach().numpy()
-        real_B = self.real_B.cpu().detach().numpy()
         gaussian_blur = T.GaussianBlur((5,5),3)
-        fake_B, real_B = gaussian_blur(fake_B), gaussian_blur(real_B)
+        fake_B, real_B = gaussian_blur(self.fake_B), gaussian_blur(self.real_B)
+        fake_B = fake_B.cpu().detach().numpy()
+        real_B = real_B.cpu().detach().numpy()
         fake_B, real_B = threshold_otsu(fake_B),threshold_otsu(real_B)
         self.P_fake = self.BPNN(self.mask,torch.from_numpy(fake_B).to(device))
         self.P_real = self.BPNN(self.mask,torch.from_numpy(real_B).to(device))
