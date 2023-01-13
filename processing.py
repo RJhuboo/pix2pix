@@ -151,7 +151,7 @@ def test(model,test_loader, epoch, opt_test):
             D_real_save.append(losses["D_real"])
         print("-------Test-------")
         print("psnr:",np.mean(psnr_metric))
-        print("bpnn:",np.mean(BPNN_save)))
+        print("bpnn:",np.mean(BPNN_save))
         
           
         #webpage.save()  # save the HTML
