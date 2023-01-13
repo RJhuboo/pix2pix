@@ -160,7 +160,7 @@ if __name__ == '__main__':
            
     def objective(trial):
         # options for training
-        alphas = [0.0001,0.001,0.01]
+        alphas = [0.1,0.001,0.01]
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = alphas[trial]
         opt.BPNN_Loss = MSELoss
