@@ -140,7 +140,7 @@ class Pix2PixModel(BaseModel):
         fake_B = fake_B.cpu().detach().numpy()
         real_B = real_B.cpu().detach().numpy()
         fake_B, real_B = threshold_otsu(fake_B),threshold_otsu(real_B)
-        print(torch.shape(self.real_B)
+        print(torch.shape(self.real_B))
         #fake_B = np.ndarray(shape=,dtype
         fake_B = torch.from_numpy(fake_B).to(device)
         real_B = torch.from_numpy(real_B).to(device)
