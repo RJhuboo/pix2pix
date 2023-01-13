@@ -140,8 +140,10 @@ class Pix2PixModel(BaseModel):
         fake_B = fake_B.cpu().detach().numpy()
         real_B = real_B.cpu().detach().numpy()
         fake_B, real_B = threshold_otsu(fake_B),threshold_otsu(real_B)
-        self.P_fake = self.BPNN(self.mask,torch.from_numpy(fake_B).to(device))
-        self.P_real = self.BPNN(self.mask,torch.from_numpy(real_B).to(device))
+        fake_B = torch.from_numpy(fake_B).to(device)
+        real_B = torch.from_numpy(real_B).to(device)
+        self.P_fake = self.BPNN(self.mask,fake_B)
+        self.P_real = self.BPNN(self.mask,real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
         return L1_BPNN.item()
     
