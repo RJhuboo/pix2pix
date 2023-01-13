@@ -82,13 +82,7 @@ def get_params(opt, size):
 
 def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, convert=True, mask = False, transform=False):
     transform_list = []
-    if opt.augmentation:
-        transform_list.append(transforms.ToPILImage())
-        transform_list.append(transforms.RandomRotation(degrees=45))
-        transform_list.append(transforms.RandomHorizontalFlip(p=0.3))
-        transform_list.append(transforms.RandomVerticalFlip(p=0.3))
-        transform_list.append(transforms.RandomAffine(degrees=(0,1),translate=(0.1,0.1)))
-        
+
     if grayscale:
         transform_list.append(transforms.Grayscale(1))
     if 'resize' in opt.preprocess:

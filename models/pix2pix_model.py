@@ -1,4 +1,5 @@
 import torch
+import torchvision.transforms as T
 from .base_model import BaseModel
 from . import networks
 from .ssim import ssim
@@ -69,8 +70,8 @@ class Pix2PixModel(BaseModel):
         # define a BPNN network for biological parameter estimation by Rehan
         self.BPNN_mode = opt.BPNN_mode
         if opt.BPNN_mode == "True":
-            self.BPNN = networks.BPNN_model(features=36,out_channels=9,n1=135,n2=148,n3=121,k1=3,k2=3,k3=3)
-            load_filename = "./checkpoints_bpnn/BPNN_checkpoint_146.pth" # add by rehan
+            self.BPNN = networks.BPNN_model(features=36,out_channels=9,n1=135,n2=146,n3=131,k1=3,k2=3,k3=3)
+            load_filename = "./checkpoints_bpnn/BPNN_checkpoint_149.pth" # add by rehan
             #if isinstance(self.BPNN, torch.nn.DataParallel):
             #    self.BPNN = self.BPNN.module
             #print('loading the model from %s' % load_filename)
@@ -135,8 +136,9 @@ class Pix2PixModel(BaseModel):
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
         fake_B = self.fake_B.cpu().detach().numpy()
-        real_B = self.real_B.cput().detach().numpy()
-        fake_B, real_B = cv2.GaussianBlur(fake_B,(5,5),0), cv2.GaussianBlur(real_B,(5,5),0)
+        real_B = self.real_B.cpu().detach().numpy()
+        gaussian_blur = T.GaussianBlur((5,5),3)
+        fake_B, real_B = gaussian_blur(fake_B), gaussian_blur(real_B)
         fake_B, real_B = threshold_otsu(fake_B),threshold_otsu(real_B)
         self.P_fake = self.BPNN(self.mask,torch.from_numpy(fake_B).to(device))
         self.P_real = self.BPNN(self.mask,torch.from_numpy(real_B).to(device))
