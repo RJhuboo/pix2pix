@@ -40,7 +40,7 @@ class Pix2PixModel(BaseModel):
         if is_train:
             parser.set_defaults(pool_size=0, gan_mode='vanilla')
             parser.add_argument('--lambda_L1', type=float, default=100.0, help='weight for L1 loss')
-            parser.add_argument('--lambda_BPNN', type=int, default=50.0, help='weight for BPNN loss')
+            #parser.add_argument('--lambda_BPNN', type=int, default=50.0, help='weight for BPNN loss')
 
         return parser
 
@@ -92,6 +92,7 @@ class Pix2PixModel(BaseModel):
             print("---- BPNN mode ---- :", self.BPNN_mode)
             for p in self.BPNN.parameters():
                 p.requires_grad = False
+            self.BPNN.eval()
         
         print("number of gpu in pix2pix : ", self.gpu_ids)
         # define parameters for instance noise by Rehan
@@ -196,7 +197,7 @@ class Pix2PixModel(BaseModel):
         self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
         # combine loss and calculate gradients
         if self.BPNN_mode == "True":
-            self.loss_BPNN = self.Bio_param() * self.opt.lambda_BPNN
+            self.loss_BPNN = self.Bio_param()
             self.loss_G = self.loss_G_GAN + self.loss_G_L1 + (self.alpha * self.loss_BPNN)
         else :
             self.loss_G = self.loss_G_GAN + self.loss_G_L1
