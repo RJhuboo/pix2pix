@@ -149,6 +149,10 @@ def test(model,test_loader, epoch, opt_test):
             G_GAN_save.append(losses["G_GAN"])
             D_fake_save.append(losses["D_fake"])
             D_real_save.append(losses["D_real"])
+        print("-------Test-------")
+        print("psnr:",np.mean(psnr_metric))
+        print("bpnn:",np.mean(BPNN_save)))
+        
           
         #webpage.save()  # save the HTML
     return np.mean(psnr_metric),np.mean(ssim_metric),np.mean(BPNN_save),np.mean(G_GAN_save),np.mean(G_L1_save),np.mean(D_fake_save),np.mean(D_real_save)
