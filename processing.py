@@ -164,7 +164,7 @@ if __name__ == '__main__':
            
     def objective(trial):
         # options for training
-        alphas = [0.1,0.001,0.01]
+        alphas = [0,0.001,0.1,0.0001,0.0005,0.005,0.04,0.00005]
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = alphas[trial]
         opt.BPNN_Loss = MSELoss
@@ -259,13 +259,13 @@ if __name__ == '__main__':
         return np.min(metric_dict_test["BPNN"]),np.max(metric_dict_test["psnr"]), np.max(metric_dict_test["ssim"]), opt.alpha
 
     study ={'bpnn':[],'psnr':[],'ssim':[],'alpha':[]}
-    for n_trial in range(1):
+    for n_trial in range(8):
         bp,ps,si,al = objective(n_trial)
         study['bpnn'].append(bp)
         study['psnr'].append(ps)
         study['alpha'].append(al)
         study['ssim'].append(si)
-    with open("./result_wthBPNN.pkl","wb") as f:
+    with open("./result_alphaBPNN.pkl","wb") as f:
         pickle.dump(study,f)
 
             
