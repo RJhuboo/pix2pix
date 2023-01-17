@@ -150,7 +150,7 @@ class Pix2PixModel(BaseModel):
         self.P_fake = self.BPNN(self.mask.to(self.device),fake_B)
         self.P_real = self.BPNN(self.mask.to(self.device),real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
-        return L1_BPNN.item()
+        return L1_BPNN
     
     def metrics(self):
         """Calculate PSNR and SSIM between fake_B and real_B.""" # Created by Rehan
