@@ -136,10 +136,26 @@ class Pix2PixModel(BaseModel):
                 
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
+<<<<<<< HEAD
         self.P_fake = self.BPNN(self.mask.to(self.device),self.fake_B)
         self.P_real = self.BPNN(self.mask.to(self.device),self.real_B)
+=======
+        gaussian_blur = T.GaussianBlur((5,5),3)
+        fake_B, real_B = self.fake_B.clone(), self.real_B.clone()
+        fake_B, real_B = gaussian_blur(fake_B), gaussian_blur(real_B)
+        fake_B = fake_B.cpu().detach().numpy()
+        real_B = real_B.cpu().detach().numpy()
+        fake_B, real_B = fake_B>0.24, real_B>0.24
+        fake_B = fake_B.astype("float32")
+        real_B = real_B.astype("float32")
+        #fake_B = np.ndarray(shape=,dtype
+        fake_B = torch.from_numpy(fake_B).to(self.device)
+        real_B = torch.from_numpy(real_B).to(self.device)
+        self.P_fake = self.BPNN(self.mask.to(self.device),fake_B)
+        self.P_real = self.BPNN(self.mask.to(self.device),real_B)
+>>>>>>> 2c59d70bf9b9f535e485589af9674f661d15f822
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
-        return L1_BPNN.item()
+        return L1_BPNN
     
     def metrics(self):
         """Calculate PSNR and SSIM between fake_B and real_B.""" # Created by Rehan
