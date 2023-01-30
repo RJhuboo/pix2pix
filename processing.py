@@ -86,7 +86,7 @@ def train(model, train_loader, epoch, opt):
                 visuals = model.get_current_visuals()  # get image results
                 img_path = model.get_image_paths()     # get image paths
                 print("path where images are saves during validation : ", img_path)
-                save_images(webpage, visuals, "./save_image", aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
+                save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
         if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
             losses = model.get_current_losses()
             t_comp = (time.time() - iter_start_time) / opt.batch_size
