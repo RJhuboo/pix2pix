@@ -57,6 +57,13 @@ def train(model, train_loader, epoch, opt):
     model.update_learning_rate()    # update learning rates in the beginning of every epoch.
     psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN_save = [],[],[],[],[],[],[]
     #loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[],"psnr":[],"ssim":[]}
+    
+    web_dir = os.path.join("/save_image", "tentative", '{}_{}'.format(opt.phase, epoch))  # define the website directory
+    if opt_test.load_iter > 0:  # load_iter is 0 by default
+        web_dir = '{:s}_iter{:d}'.format(web_dir, opt.load_iter)
+    print('creating web directory', web_dir)
+    webpage = html.HTML(web_dir, 'Experiment = %s, Phase = %s, Epoch = %s' % ("tentative", opt.phase, epoch))
+    
     print("length of train_loader :", len(train_loader))
     for i, data in enumerate(train_loader):  # inner loop within one epoch
         iter_start_time = time.time()  # timer for computation per iteration
@@ -79,7 +86,7 @@ def train(model, train_loader, epoch, opt):
                 visuals = model.get_current_visuals()  # get image results
                 img_path = model.get_image_paths()     # get image paths
                 print("path where images are saves during validation : ", img_path)
-                save_images(visuals, "./save_image", aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
+                save_images(webpage, visuals, "./save_image", aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
         if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
             losses = model.get_current_losses()
             t_comp = (time.time() - iter_start_time) / opt.batch_size
