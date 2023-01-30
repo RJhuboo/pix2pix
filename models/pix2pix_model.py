@@ -58,7 +58,7 @@ class Pix2PixModel(BaseModel):
         else:
             self.loss_names = ['G_GAN', 'G_L1', 'D_real', 'D_fake']
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
-        self.visual_names = ['real_A', 'fake_B', 'real_B','real_B_bin']
+        self.visual_names = ['real_A', 'fake_B', 'real_B','real_B_bin','fake_B_bin']
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
         if self.isTrain:
             self.model_names = ['G', 'D']
@@ -150,6 +150,7 @@ class Pix2PixModel(BaseModel):
         fake_B = torch.from_numpy(fake_B).to(self.device)
         real_B = torch.from_numpy(real_B).to(self.device)
         self.real_B_bin=real_B
+        self.fake_B_bin=fake_B
         self.P_fake = self.BPNN(self.mask.to(self.device),fake_B)
         self.P_real = self.BPNN(self.mask.to(self.device),real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
