@@ -70,7 +70,7 @@ def train(model, train_loader, epoch, opt):
         psnr, ssim = model.metrics()
         psnr_metric.append(psnr.item())
         ssim_metric.append(ssim.item())
-        if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
+        if total_iters % 1 == 0:   # display images on visdom and save images to a HTML file opt.display_freq
             save_result = total_iters % opt.update_html_freq == 0
             model.compute_visuals()
             visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
@@ -79,9 +79,7 @@ def train(model, train_loader, epoch, opt):
                 visuals = model.get_current_visuals()  # get image results
                 img_path = model.get_image_paths()     # get image paths
                 print("path where images are saves during validation : ", img_path)
-                if i % 5 == 0:  # save images to an HTML file
-                    print('processing (%04d)-th image... %s' % (i, img_path))
-                save_images(visuals, img_path, aspect_ratio=opt_test.aspect_ratio, width=opt_test.display_winsize)
+                save_images(visuals, "./save_image", aspect_ratio=opt_test.aspect_ratio, width=opt_test.display_winsize)
         if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
             losses = model.get_current_losses()
             t_comp = (time.time() - iter_start_time) / opt.batch_size
