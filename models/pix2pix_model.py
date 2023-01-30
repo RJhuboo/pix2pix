@@ -143,7 +143,7 @@ class Pix2PixModel(BaseModel):
         self.real_B_bin=real_B
         fake_B, real_B = gaussian_blur(fake_B), gaussian_blur(real_B)
         fake_B = fake_B.cpu().numpy()
-        real_B = real_B.cpu().numpy
+        real_B = real_B.cpu().numpy()
         print("before",np.max(real_B))
         fake_B, real_B = fake_B>0.24, real_B>0.24
         fake_B = fake_B.astype("float32")
