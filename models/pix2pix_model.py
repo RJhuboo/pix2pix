@@ -140,6 +140,7 @@ class Pix2PixModel(BaseModel):
   
         gaussian_blur = T.GaussianBlur((5,5),3)
         fake_B, real_B = self.fake_B.clone(), self.real_B.clone()
+        self.real_B_bin=real_B
         fake_B, real_B = gaussian_blur(fake_B), gaussian_blur(real_B)
         fake_B = fake_B.cpu().detach().numpy()
         real_B = real_B.cpu().detach().numpy()
@@ -149,7 +150,6 @@ class Pix2PixModel(BaseModel):
         #fake_B = np.ndarray(shape=,dtype
         fake_B = torch.from_numpy(fake_B).to(self.device)
         real_B = torch.from_numpy(real_B).to(self.device)
-        self.real_B_bin=real_B
         torchvision.utils.save_image(real_B,'./save_image/label_bin.png')
         self.P_fake = self.BPNN(self.mask.to(self.device),fake_B)
         self.P_real = self.BPNN(self.mask.to(self.device),real_B)
