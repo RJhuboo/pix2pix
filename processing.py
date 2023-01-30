@@ -59,7 +59,7 @@ def train(model, train_loader, epoch, opt):
     #loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[],"psnr":[],"ssim":[]}
     
     web_dir = os.path.join("/save_image", "tentative", '{}_{}'.format(opt.phase, epoch))  # define the website directory
-    if opt_test.load_iter > 0:  # load_iter is 0 by default
+    if 1 > 0:  # load_iter is 0 by default
         web_dir = '{:s}_iter{:d}'.format(web_dir, opt.load_iter)
     print('creating web directory', web_dir)
     webpage = html.HTML(web_dir, 'Experiment = %s, Phase = %s, Epoch = %s' % ("tentative", opt.phase, epoch))
