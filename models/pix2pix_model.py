@@ -139,14 +139,16 @@ class Pix2PixModel(BaseModel):
         """ Calculate biological parameters from fake image and corresponding real image"""
   
         gaussian_blur = T.GaussianBlur((5,5),3)
-        fake_B, real_B = self.fake_B.clone(), self.real_B.clone()
+        fake_B, real_B = self.fake_B.clone().detach(), self.real_B.clone().detach()
         self.real_B_bin=real_B
         fake_B, real_B = gaussian_blur(fake_B), gaussian_blur(real_B)
-        fake_B = fake_B.cpu().detach().numpy()
-        real_B = real_B.cpu().detach().numpy()
+        fake_B = fake_B.cpu().numpy()
+        real_B = real_B.cpu().numpy
+        print("before",np.max(real_B))
         fake_B, real_B = fake_B>0.24, real_B>0.24
         fake_B = fake_B.astype("float32")
         real_B = real_B.astype("float32")
+        print("after:",np.max(real_B))
         #fake_B = np.ndarray(shape=,dtype
         fake_B = torch.from_numpy(fake_B).to(self.device)
         real_B = torch.from_numpy(real_B).to(self.device)
