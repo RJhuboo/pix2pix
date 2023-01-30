@@ -1,4 +1,5 @@
 import torch
+import torchvision
 import torchvision.transforms as T
 from .base_model import BaseModel
 from . import networks
@@ -153,7 +154,7 @@ class Pix2PixModel(BaseModel):
         self.P_fake = self.BPNN(self.mask.to(self.device),fake_B)
         self.P_real = self.BPNN(self.mask.to(self.device),real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
-        print('ub'n)
+        print(n)
         return L1_BPNN
     
     def metrics(self):
