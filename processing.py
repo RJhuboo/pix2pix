@@ -77,14 +77,10 @@ def train(model, train_loader, epoch, opt):
         psnr, ssim = model.metrics()
         psnr_metric.append(psnr.item())
         ssim_metric.append(ssim.item())
-        if total_iters % 1 == 0:   # display images on visdom and save images to a HTML file opt.display_freq
+        if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file opt.display_freq
             save_result = total_iters % opt.update_html_freq == 0
             model.compute_visuals()
             visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
-            if i < 10:  # only apply our model to opt.num_test images.
-                visuals = model.get_current_visuals()  # get image results
-                img_path = model.get_image_paths()     # get image paths
-                save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
         if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
             losses = model.get_current_losses()
             t_comp = (time.time() - iter_start_time) / opt.batch_size
