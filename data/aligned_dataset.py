@@ -61,7 +61,7 @@ class AlignedDataset(BaseDataset):
         A = A_transform(A)
         B = B_transform(B)
         mask = mask_transform(mask)
-        
+        print("way before",torch.max(A))
         return {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
 
 
