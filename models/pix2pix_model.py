@@ -58,7 +58,7 @@ class Pix2PixModel(BaseModel):
         else:
             self.loss_names = ['G_GAN', 'G_L1', 'D_real', 'D_fake']
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
-        self.visual_names = ['real_A', 'fake_B', 'real_B']
+        self.visual_names = ['real_A', 'fake_B', 'real_B','real_B_bin']
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
         if self.isTrain:
             self.model_names = ['G', 'D']
@@ -137,8 +137,7 @@ class Pix2PixModel(BaseModel):
                 
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
-        torchvision.utils.save_image(self.real_B, './save_image/labels.png')
-        torchvision.utils.save_image(self.real_A,'./save_image/inputs.png')
+  
         gaussian_blur = T.GaussianBlur((5,5),3)
         fake_B, real_B = self.fake_B.clone(), self.real_B.clone()
         fake_B, real_B = gaussian_blur(fake_B), gaussian_blur(real_B)
@@ -150,11 +149,11 @@ class Pix2PixModel(BaseModel):
         #fake_B = np.ndarray(shape=,dtype
         fake_B = torch.from_numpy(fake_B).to(self.device)
         real_B = torch.from_numpy(real_B).to(self.device)
+        self.real_B_bin=real_B
         torchvision.utils.save_image(real_B,'./save_image/label_bin.png')
         self.P_fake = self.BPNN(self.mask.to(self.device),fake_B)
         self.P_real = self.BPNN(self.mask.to(self.device),real_B)
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
-        print(n)
         return L1_BPNN
     
     def metrics(self):
