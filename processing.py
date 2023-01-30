@@ -58,12 +58,6 @@ def train(model, train_loader, epoch, opt):
     psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN_save = [],[],[],[],[],[],[]
     #loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[],"psnr":[],"ssim":[]}
     
-    web_dir = os.path.join("./save_image", "tentative", '{}_{}'.format(opt.phase, epoch))  # define the website directory
-    if 1 > 0:  # load_iter is 0 by default
-        web_dir = '{:s}_iter{:d}'.format(web_dir, opt.load_iter)
-    print('creating web directory', web_dir)
-    webpage = html.HTML(web_dir, 'Experiment = %s, Phase = %s, Epoch = %s' % ("tentative", opt.phase, epoch))
-    
     print("length of train_loader :", len(train_loader))
     for i, data in enumerate(train_loader):  # inner loop within one epoch
         iter_start_time = time.time()  # timer for computation per iteration
