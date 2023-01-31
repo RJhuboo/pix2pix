@@ -31,7 +31,7 @@ NB_DATA = 4474
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()   # get training options
-    opt.alpha = # A FAIRE
+    #opt.alpha = # A FAIRE
     opt.BPNN_Loss = MSELoss
     dataset = create_dataset(opt,NB_DATA)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)    # get the number of images in the dataset.

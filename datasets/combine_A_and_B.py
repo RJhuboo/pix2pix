@@ -14,8 +14,8 @@ def image_write(path_A, path_B, path_AB):
 
 parser = argparse.ArgumentParser('create image pairs')
 parser.add_argument('--fold_A', dest='fold_A', help='input directory for image A', type=str, default='../mouse/LR')
-parser.add_argument('--fold_B', dest='fold_B', help='input directory for image B', type=str, default='../mouse/HR')
-parser.add_argument('--fold_AB', dest='fold_AB', help='output directory', type=str, default='./TRAB_AB')
+parser.add_argument('--fold_B', dest='fold_B', help='input directory for image B', type=str, default='../mouse/seg')
+parser.add_argument('--fold_AB', dest='fold_AB', help='output directory', type=str, default='./SEG_AB')
 parser.add_argument('--num_imgs', dest='num_imgs', help='number of images', type=int, default=7100)
 parser.add_argument('--use_AB', dest='use_AB', help='if true: (0001_A, 0001_B) to (0001_AB)', action='store_true')
 parser.add_argument('--no_multiprocessing', dest='no_multiprocessing', help='If used, chooses single CPU execution instead of parallel execution', action='store_true',default=False)
@@ -61,7 +61,7 @@ for sp in splits:
             if not args.no_multiprocessing:
                 pool.apply_async(image_write, args=(path_A, path_B, path_AB))
         
-            print("do we read")
+            print(n)
             im_A = cv2.imread(path_A, 1) # python2: cv2.CV_LOAD_IMAGE_COLOR; python3: cv2.IMREAD_COLOR
             im_B = cv2.imread(path_B, 1) # python2: cv2.CV_LOAD_IMAGE_COLOR; python3: cv2.IMREAD_COLOR
             if args.resize_A == True:
