@@ -52,8 +52,8 @@ if __name__ == '__main__':
         epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
         visualizer.reset()              # reset the visualizer: make sure it saves the results to HTML at least once every epoch
         model.update_learning_rate()    # update learning rates in the beginning of every epoch.
-        psnr_metric = []                # initialize psnr 
-        ssim_metric = []                 # initialize ssim
+        psnr_metric = AverageMeter()    # initialize psnr 
+        ssim_metric = AverageMeter()    # initialize ssim
         for i, data in enumerate(dataset):  # inner loop within one epoch
             iter_start_time = time.time()  # timer for computation per iteration
             if total_iters % opt.print_freq == 0:
@@ -64,8 +64,8 @@ if __name__ == '__main__':
             model.set_input(data)         # unpack data from dataset and apply preprocessing
             model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
             ssim, psnr = model.metrics()
-            psnr_metric.append(psnr.item())
-            ssim_metric.append(ssim.item())
+            psnr_metric.update(psnr.item(),opt.batch_size)
+            ssim_metric.update(ssim.item(),opt.batch_size)
             if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
                 save_result = total_iters % opt.update_html_freq == 0
                 model.compute_visuals()
@@ -75,15 +75,13 @@ if __name__ == '__main__':
                 losses = model.get_current_losses()
                 t_comp = (time.time() - iter_start_time) / opt.batch_size
                 visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
-                metrics_dict = {"psnr": np.mean(psnr_metric),"ssim": np.mean(ssim_metric)}
+                #metrics_dict = {"psnr": psnr_metric.avg,"ssim": ssim_metric.avg}
                 #if opt.display_wandb is True:
                 #    wandb.log(losses)
                 #    wandb.log(metrics_dict)
                 if opt.display_id > 0:
                     visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
                     print("suppose to display loss")
-                psnr_metric = []                # initialize psnr 
-                ssim_metric = []                 # initialize ssim
 
             if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
                 print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
@@ -95,7 +93,8 @@ if __name__ == '__main__':
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
             model.save_networks('latest')
             model.save_networks(epoch)
-
+        print("------ epoch %d ------" % (epoch))
+        print("\n PSNR: %d, SSIM: %d \n" % (psnr_metric.avg, ssim_metric.avg))
         print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
     
         #wandb.finish()
