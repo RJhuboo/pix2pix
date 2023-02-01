@@ -54,6 +54,10 @@ if __name__ == '__main__':
         model.update_learning_rate()    # update learning rates in the beginning of every epoch.
         psnr_metric = AverageMeter()    # initialize psnr 
         ssim_metric = AverageMeter()    # initialize ssim
+        G_GAN_metric = AverageMeter()
+        G_L1_metric = AverageMeter()
+        D_fake_metric = AverageMeter()
+        D_real_metric = AverageMeter()
         for i, data in enumerate(dataset):  # inner loop within one epoch
             iter_start_time = time.time()  # timer for computation per iteration
             if total_iters % opt.print_freq == 0:
@@ -63,6 +67,8 @@ if __name__ == '__main__':
             epoch_iter += opt.batch_size
             model.set_input(data)         # unpack data from dataset and apply preprocessing
             model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
+            
+            # Metric evaluation and losses 
             ssim, psnr = model.metrics()
             psnr_metric.update(psnr.item(),opt.batch_size)
             ssim_metric.update(ssim.item(),opt.batch_size)
@@ -75,6 +81,11 @@ if __name__ == '__main__':
                 losses = model.get_current_losses()
                 t_comp = (time.time() - iter_start_time) / opt.batch_size
                 visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
+            losses = model.get_current_losses()
+            G_GAN_metric.update(losses["G_GAN"],opt.batch_size)
+            G_L1_metric.update(losees["G_L1"],opt.batch_size)
+            D_fake_metric.update(losses["D_fake"],opt.batch_size)
+            D_real_metric.update(losses["D_real"],opt.batch_size)
                 #metrics_dict = {"psnr": psnr_metric.avg,"ssim": ssim_metric.avg}
                 #if opt.display_wandb is True:
                 #    wandb.log(losses)
