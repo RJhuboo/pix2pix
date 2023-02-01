@@ -39,7 +39,22 @@ def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
         txts.append(label)
         links.append(image_name)
 
+class AverageMeter(object):
+    def __init__(self):
+        self.reset()
 
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+        
 class Visualizer():
     """This class includes several functions that can display/save images and print/save logging information.
 
