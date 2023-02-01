@@ -96,8 +96,8 @@ class Pix2PixModel(BaseModel):
         
         print("number of gpu in pix2pix : ", self.gpu_ids)
         # define parameters for instance noise by Rehan
-        if self.isTrain:
-            self.inst_noise_sigma = opt.noise_sigma
+        #if self.isTrain:
+            #self.inst_noise_sigma = opt.noise_sigma
 
         if self.isTrain:  # define a discriminator; conditional GANs need to take both input and output images; Therefore, #channels for D is input_nc + output_nc
             self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD,
@@ -108,8 +108,8 @@ class Pix2PixModel(BaseModel):
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
             self.criterionL1 = torch.nn.L1Loss()
             #self.criterionBPNN = torch.nn.MSELoss()
-            self.criterionBPNN = opt.BPNN_Loss()
-            self.alpha = opt.alpha 
+            #self.criterionBPNN = opt.BPNN_Loss()
+            #self.alpha = opt.alpha 
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
@@ -136,10 +136,7 @@ class Pix2PixModel(BaseModel):
                 
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
-<<<<<<< HEAD
-        self.P_fake = self.BPNN(self.mask.to(self.device),self.fake_B)
-        self.P_real = self.BPNN(self.mask.to(self.device),self.real_B)
-=======
+        print("s'en sert")
         gaussian_blur = T.GaussianBlur((5,5),3)
         fake_B, real_B = self.fake_B.clone(), self.real_B.clone()
         fake_B, real_B = gaussian_blur(fake_B), gaussian_blur(real_B)
@@ -153,7 +150,6 @@ class Pix2PixModel(BaseModel):
         real_B = torch.from_numpy(real_B).to(self.device)
         self.P_fake = self.BPNN(self.mask.to(self.device),fake_B)
         self.P_real = self.BPNN(self.mask.to(self.device),real_B)
->>>>>>> 2c59d70bf9b9f535e485589af9674f661d15f822
         L1_BPNN = self.criterionBPNN(self.P_fake, self.P_real)
         return L1_BPNN
     
