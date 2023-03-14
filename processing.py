@@ -27,6 +27,7 @@ from models import create_model
 from util.visualizer import Visualizer
 from util.visualizer import save_images
 from sklearn.model_selection import KFold, train_test_split
+from sklearn.utils import shuffle
 import optuna
 from util import html
 import torch
@@ -164,7 +165,7 @@ if __name__ == '__main__':
            
     def objective(trial):
         # options for training
-        alphas = [0,0.001,0.1,0.0001,0.0005,0.005,0.04,0.00005]
+        alphas = [0,1e-7,1e-4,1e-2,1]#,0.04,0.005,0.001,0.0005,0.0001,0.00005]
         opt = ProcessOptions().parse()   # get training options
         opt.alpha = alphas[trial]
         opt.BPNN_Loss = MSELoss
@@ -184,10 +185,10 @@ if __name__ == '__main__':
         if opt.k_fold > 1:
             kf = KFold(n_splits = opt.k_fold, shuffle=True)
         else:
-            kf = train_test_split(index,train_size=6100,test_size=1000, random_state=42)
+            kf = train_test_split(index,train_size=6000,test_size=1100,shuffle=False, random_state=42)
         for k in range(opt.k_fold):
-            train_index = kf[0]
-            test_index = kf[1]
+            train_index = shuffle(kf[0])
+            test_index = shuffle(kf[1])
             model = create_model(opt)      # create a model given opt.model and other options
             model.setup(opt)               # regular setup: load and print networks; create schedulers
             dataset_train = create_dataset(opt,train_index)  # create a dataset given opt.dataset_mode and other options
@@ -259,14 +260,14 @@ if __name__ == '__main__':
         return np.min(metric_dict_test["BPNN"]),np.max(metric_dict_test["psnr"]), np.max(metric_dict_test["ssim"]), opt.alpha
 
     study ={'bpnn':[],'psnr':[],'ssim':[],'alpha':[]}
-    for n_trial in range(8):
+    for n_trial in range(5):
         bp,ps,si,al = objective(n_trial)
         study['bpnn'].append(bp)
         study['psnr'].append(ps)
         study['alpha'].append(al)
         study['ssim'].append(si)
-    with open("./result_alphaBPNN.pkl","wb") as f:
-        pickle.dump(study,f)
+        with open("./result_2alphaBPNN.pkl","wb") as f:
+            pickle.dump(study,f)
 
             
   
