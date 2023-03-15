@@ -153,7 +153,7 @@ class Pix2PixModel(BaseModel):
         #real_B = gaussian_blur(real_B)
         #fake_B = fake_B.cpu().detach().numpy()
         real_B = real_B.cpu().detach().numpy()
-        real_B = real_B/max(real_B)
+        real_B = real_B/np.max(real_B)
         #fake_B = fake_B.astype("float32")
         real_B = real_B.astype("float32")
         #fake_B = np.ndarray(shape=,dtype
