@@ -9,6 +9,7 @@ from skimage.filters import threshold_otsu
 import numpy as np
 import os
 import ntpath
+from torch import nn
 import torch.nn.functional as F
 
 def bvtv_loss(tensor_to_count,tensor_mask):
@@ -19,6 +20,15 @@ def bvtv_loss(tensor_to_count,tensor_mask):
     TV = ones.sum(dim=2)
     BVTV = BV/TV
     return BVTV
+
+class ThrSigmoid(nn.Module):
+    def __init__(self, k,t):
+        super().__init__()
+        self.k = k
+        self.t = t
+    def forward(self, x):
+        ex = (1/(1+torch.exp(-self.k*(x-self.t))))
+        return ex
 
 class Pix2PixModel(BaseModel):
     """ This class implements the pix2pix model, for learning a mapping from input images to output images given paired data.
@@ -81,7 +91,7 @@ class Pix2PixModel(BaseModel):
         self.BPNN_mode = opt.BPNN_mode
         if opt.BPNN_mode == "True":
             self.BPNN = networks.BPNN_model(features=64,out_channels=7,n1=158,n2=152,n3=83,k1=3,k2=3,k3=3)
-            load_filename = "./checkpoints_bpnn/BPNN_checkpoint_7p2.pth" # add by rehan
+            load_filename = "./checkpoints_bpnn/BPNN_checkpoint_lrhr.pth" # add by rehan
             self.alpha= opt.alpha
             #if isinstance(self.BPNN, torch.nn.DataParallel):
             #    self.BPNN = self.BPNN.module
@@ -104,7 +114,8 @@ class Pix2PixModel(BaseModel):
             for p in self.BPNN.parameters():
                 p.requires_grad = False
             self.BPNN.eval()
-        
+            self.sig = ThrSigmoid(k=400,t=0.2)
+
         print("number of gpu in pix2pix : ", self.gpu_ids)
         # define parameters for instance noise by Rehan
         #if self.isTrain:
@@ -144,7 +155,8 @@ class Pix2PixModel(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.fake_B = self.netG(self.real_A)  # G(A)
-                
+        print(torch.min(self.fake_B))
+        self.fake_B_bin = self.sig(self.fake_B.clamp(0.0,1.0))        
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
         
@@ -154,16 +166,18 @@ class Pix2PixModel(BaseModel):
         #fake_B = fake_B.cpu().detach().numpy()
         real_B = real_B.cpu().detach().numpy()
         real_B = real_B/np.max(real_B)
+        real_B = gaussian_blur(real_B)
+        real_B = real_B>0.2
         #fake_B = fake_B.astype("float32")
-        real_B = real_B.astype("float32")
+        real_B = real_B.astype("float32")*1.
         #fake_B = np.ndarray(shape=,dtype
         #fake_B = torch.from_numpy(fake_B).to(self.device)
         real_B = torch.from_numpy(real_B).to(self.device)
         masks_bin = self.mask.clone().detach()
         masks_bin = F.interpolate(masks_bin, size=64)
-        self.P_fake = self.BPNN(masks_bin.to(self.device),self.fake_B)
+        self.P_fake = self.BPNN(masks_bin.to(self.device),self.fake_B_bin)
         self.P_real = self.BPNN(masks_bin.to(self.device),real_B)
-        BVTV_SR = bvtv_loss(self.fake_B,masks_bin.to(self.device))
+        BVTV_SR = bvtv_loss(self.fake_B_bin,masks_bin.to(self.device))
         BVTV_HR = bvtv_loss(real_B,masks_bin.to(self.device))
         self.P_fake = torch.cat((self.P_fake,BVTV_SR),dim=1).clamp(-1,1)
         self.P_real = torch.cat((self.P_real,BVTV_HR),dim=1).clamp(-1,1)
