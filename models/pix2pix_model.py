@@ -1,4 +1,5 @@
 import torch
+from torchvision.utils import save_image
 import torchvision.transforms as T
 from .base_model import BaseModel
 from . import networks
@@ -77,7 +78,7 @@ class Pix2PixModel(BaseModel):
         else:
             self.loss_names = ['G_GAN', 'G_L1', 'D_real', 'D_fake']
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
-        self.visual_names = ['real_A', 'fake_B', 'real_B']
+        self.visual_names = ['real_A', 'fake_B', 'real_B','fake_B_bin','real_B_bin']
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
         if self.isTrain:
             self.model_names = ['G', 'D']
@@ -114,8 +115,9 @@ class Pix2PixModel(BaseModel):
             for p in self.BPNN.parameters():
                 p.requires_grad = False
             self.BPNN.eval()
-            self.sig = ThrSigmoid(k=400,t=0.2)
-
+            self.sig = ThrSigmoid(k=400,t=0.21)
+            self.gaussian_blur = T.GaussianBlur((5,5),3)
+        
         print("number of gpu in pix2pix : ", self.gpu_ids)
         # define parameters for instance noise by Rehan
         #if self.isTrain:
@@ -155,8 +157,7 @@ class Pix2PixModel(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.fake_B = self.netG(self.real_A)  # G(A)
-        print(torch.min(self.fake_B))
-        self.fake_B_bin = self.sig(self.fake_B.clamp(0.0,1.0))        
+        self.fake_B_bin = self.sig((self.gaussian_blur((((self.fake_B)+1)/2)*255)/255).clamp(0,1))        
     def Bio_param(self): # by Rehan
         """ Calculate biological parameters from fake image and corresponding real image"""
         
@@ -164,15 +165,19 @@ class Pix2PixModel(BaseModel):
         real_B = self.real_B.clone()
         #real_B = gaussian_blur(real_B)
         #fake_B = fake_B.cpu().detach().numpy()
-        real_B = real_B.cpu().detach().numpy()
-        real_B = real_B/np.max(real_B)
-        real_B = gaussian_blur(real_B)
-        real_B = real_B>0.2
+        real_B = real_B.cpu().detach()
+        #real_B = ((real_B+1)/2)*255
+        real_B = gaussian_blur(((real_B+1)/2)*255)
+        real_B = real_B.numpy()/255>0.18
         #fake_B = fake_B.astype("float32")
         real_B = real_B.astype("float32")*1.
         #fake_B = np.ndarray(shape=,dtype
         #fake_B = torch.from_numpy(fake_B).to(self.device)
         real_B = torch.from_numpy(real_B).to(self.device)
+        #save_image((real_B[0,:,:,:]+1)/2,"./real_B_bin_"+os.path.basename(self.image_paths[0])+".png")
+        #save_image(self.fake_B_bin[0,:,:,:],"./fake_B_bin"+os.path.basename(self.image_paths[0])+".png")
+        #save_image((self.real_A[0,:,:,:]+1)/2,"./real_A_"+os.path.basename(self.image_paths[0])+".png")
+        self.real_B_bin = real_B
         masks_bin = self.mask.clone().detach()
         masks_bin = F.interpolate(masks_bin, size=64)
         self.P_fake = self.BPNN(masks_bin.to(self.device),self.fake_B_bin)
