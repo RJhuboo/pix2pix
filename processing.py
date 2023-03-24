@@ -127,7 +127,7 @@ def test(model,test_loader, epoch, opt_test):
     model.eval()
     with torch.no_grad():
         
-        psnr_metric, ssim_metric, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN_save = [],[],[],[],[],[],[]
+        psnr_list, ssim_list, G_GAN_save, G_L1_save, D_fake_save, D_real_save, BPNN_save = [],[],[],[],[],[],[]
         # loss_dis = {"BPNN":[],"G_GAN":[],"G_L1":[],"D_fake":[],"D_real":[]}
         #bpnn_list = []
         for i, data in enumerate(test_loader):
@@ -141,20 +141,24 @@ def test(model,test_loader, epoch, opt_test):
                     print('processing (%04d)-th image... %s' % (i, img_path))
                 save_images(webpage, visuals, img_path, aspect_ratio=opt_test.aspect_ratio, width=opt_test.display_winsize)
             psnr, ssim = model.metrics()
-            psnr_metric.append(psnr.item())
-            ssim_metric.append(ssim.item())
-            losses = model.get_current_losses()
-            if opt_test.BPNN_mode == "True":
-                BPNN_save.append(losses["BPNN"])
-            G_L1_save.append(losses["G_L1"])
-            G_GAN_save.append(losses["G_GAN"])
-            D_fake_save.append(losses["D_fake"])
-            D_real_save.append(losses["D_real"])
-        print("-------Test-------")
-        print("psnr:",np.mean(psnr_metric))
-        print("bpnn:",np.mean(BPNN_save))
-        
-          
+            psnr_list.append(psnr)
+            ssim_list.append(ssim)
+            #if opt_test.BPNN_mode == "False":
+            bpnn = model.Loss_extraction()
+            bpnn = bpnn.cpu().detach().numpy()
+            bpnn_list.append(bpnn)
+            bpnn_mean = np.mean(bpnn_list)
+        psnr_metric, ssim_metric = np.mean(psnr_list), np.mean(ssim_list)
+        metric_dict_test["psnr test"].append(psnr_metric)
+        metric_dict_test["ssim test"].append(ssim_metric)
+        metric_dict_test["bpnn test"].append(bpnn_mean)
+        print("-----Test-----")
+        print("BPNN Loss:",bpnn_mean)
+        #if opt_test.BPNN_mode == "False":
+          #  metric_dict_test["bpnn test metric"].append(bpnn)
+        directory_ml = os.path.join(opt.results_dir,opt.name)
+        with open(os.path.join(directory_ml,"metric_test.txt"),"wb") as f:
+            pickle.dump(metric_dict_test,f)
         #webpage.save()  # save the HTML
     return np.mean(psnr_metric),np.mean(ssim_metric),np.mean(BPNN_save),np.mean(G_GAN_save),np.mean(G_L1_save),np.mean(D_fake_save),np.mean(D_real_save)
 
