@@ -13,7 +13,8 @@ See our template dataset class 'template_dataset.py' for more details.
 import importlib
 import torch.utils.data
 from data.base_dataset import BaseDataset
-
+from torchvision import transforms, utils
+from torch.utils.data import ConcatDataset
 
 def find_dataset_using_name(dataset_name):
     """Import the module "data/[dataset_name]_dataset.py".
@@ -44,7 +45,7 @@ def get_option_setter(dataset_name):
     return dataset_class.modify_commandline_options
 
 
-def create_dataset(opt):
+def create_dataset(opt,index):
     """Create a dataset given the option.
 
     This function wraps the class CustomDatasetDataLoader.
@@ -54,7 +55,7 @@ def create_dataset(opt):
         >>> from data import create_dataset
         >>> dataset = create_dataset(opt)
     """
-    data_loader = CustomDatasetDataLoader(opt)
+    data_loader = CustomDatasetDataLoader(opt,index)
     dataset = data_loader.load_data()
     return dataset
 
@@ -62,7 +63,7 @@ def create_dataset(opt):
 class CustomDatasetDataLoader():
     """Wrapper class of Dataset class that performs multi-threaded data loading"""
 
-    def __init__(self, opt):
+    def __init__(self, opt,index):
         """Initialize this class
 
         Step 1: create a dataset instance given the name [dataset_mode]
@@ -70,21 +71,24 @@ class CustomDatasetDataLoader():
         """
         self.opt = opt
         dataset_class = find_dataset_using_name(opt.dataset_mode)
-        self.dataset = dataset_class(opt)
+        self.dataset=dataset_class(opt,transform=True)
         print("dataset [%s] was created" % type(self.dataset).__name__)
+        print(len(self.dataset))
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset,
+            sampler = index,
             batch_size=opt.batch_size,
-            shuffle=not opt.serial_batches,
+            #shuffle=not opt.serial_batches,
             num_workers=int(opt.num_threads))
-
+        print(len(self.dataloader))
+        
     def load_data(self):
         return self
 
     def __len__(self):
         """Return the number of data in the dataset"""
-        return min(len(self.dataset), self.opt.max_dataset_size)
-
+        #return min(len(self.dataset), self.opt.max_dataset_size)
+        return len(self.dataloader)
     def __iter__(self):
         """Return a batch of data"""
         for i, data in enumerate(self.dataloader):

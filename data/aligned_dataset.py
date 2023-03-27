@@ -1,8 +1,9 @@
 import os
 from data.base_dataset import BaseDataset, get_params, get_transform
 from data.image_folder import make_dataset
+import torchvision.transforms as transforms
 from PIL import Image
-
+import torch
 
 class AlignedDataset(BaseDataset):
     """A dataset class for paired image dataset.
@@ -11,18 +12,21 @@ class AlignedDataset(BaseDataset):
     During test time, you need to prepare a directory '/path/to/data/test'.
     """
 
-    def __init__(self, opt):
+    def __init__(self, opt,transform=False):
         """Initialize this dataset class.
 
         Parameters:
             opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
         BaseDataset.__init__(self, opt)
-        self.dir_AB = os.path.join(opt.dataroot, opt.phase)  # get the image directory
+        self.dir_AB = os.path.join(opt.dataroot, "train")  # get the image directory # change opt.phase to "train"
         self.AB_paths = sorted(make_dataset(self.dir_AB, opt.max_dataset_size))  # get image paths
+        self.mask_paths = sorted(make_dataset(opt.maskdir,opt.max_dataset_size))
         assert(self.opt.load_size >= self.opt.crop_size)   # crop_size should be smaller than the size of loaded image
         self.input_nc = self.opt.output_nc if self.opt.direction == 'BtoA' else self.opt.input_nc
         self.output_nc = self.opt.input_nc if self.opt.direction == 'BtoA' else self.opt.output_nc
+        self.transform = transform
+    
 
     def __getitem__(self, index):
         """Return a data point and its metadata information.
@@ -36,24 +40,31 @@ class AlignedDataset(BaseDataset):
             A_paths (str) - - image paths
             B_paths (str) - - image paths (same as A_paths)
         """
-        # read a image given a random integer index
+        # read an image given a random integer index
         AB_path = self.AB_paths[index]
         AB = Image.open(AB_path).convert('RGB')
+           
+        # read a mask given a random inter index
+        mask_path = self.mask_paths[index]
+        mask = Image.open(mask_path)
         # split AB image into A and B
         w, h = AB.size
         w2 = int(w / 2)
         A = AB.crop((0, 0, w2, h))
         B = AB.crop((w2, 0, w, h))
-
+        
         # apply the same transform to both A and B
         transform_params = get_params(self.opt, A.size)
-        A_transform = get_transform(self.opt, transform_params, grayscale=(self.input_nc == 1))
-        B_transform = get_transform(self.opt, transform_params, grayscale=(self.output_nc == 1))
-
+        A_transform = get_transform(self.opt, transform_params, grayscale=(self.input_nc == 1), transform=self.transform)
+        B_transform = get_transform(self.opt, transform_params, grayscale=(self.output_nc == 1), transform=self.transform)
+        mask_transform = get_transform(self.opt,transform_params, convert = True, mask=True, grayscale=True, transform=self.transform)
+        
         A = A_transform(A)
         B = B_transform(B)
+        mask = mask_transform(mask)
+        
+        return {'A': A, 'B': B, 'mask': mask, 'A_paths': AB_path, 'B_paths': AB_path}
 
-        return {'A': A, 'B': B, 'A_paths': AB_path, 'B_paths': AB_path}
 
     def __len__(self):
         """Return the total number of images in the dataset."""

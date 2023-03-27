@@ -74,12 +74,15 @@ def get_params(opt, size):
     y = random.randint(0, np.maximum(0, new_h - opt.crop_size))
 
     flip = random.random() > 0.5
+    flipv = random.random() > 0.3
+    rotate = random.randint(25,90)
 
-    return {'crop_pos': (x, y), 'flip': flip}
+    return {'crop_pos': (x, y), 'flip': flip, 'flipv':flipv, 'rotate':rotate}
 
 
-def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, convert=True):
+def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, convert=True, mask = False, transform=False):
     transform_list = []
+
     if grayscale:
         transform_list.append(transforms.Grayscale(1))
     if 'resize' in opt.preprocess:
@@ -93,22 +96,26 @@ def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, conve
             transform_list.append(transforms.RandomCrop(opt.crop_size))
         else:
             transform_list.append(transforms.Lambda(lambda img: __crop(img, params['crop_pos'], opt.crop_size)))
-
+            
     if opt.preprocess == 'none':
         transform_list.append(transforms.Lambda(lambda img: __make_power_2(img, base=4, method=method)))
-
-    if not opt.no_flip:
+    
+    if not opt.no_flip or transform == True:
         if params is None:
             transform_list.append(transforms.RandomHorizontalFlip())
         elif params['flip']:
             transform_list.append(transforms.Lambda(lambda img: __flip(img, params['flip'])))
-
+        if params['flipv']:
+            transform_list.append(transforms.Lambda(lambda img: __flipvertical(img,params['flipv'])))
+    if transform == True:
+        transform_list.append(transforms.Lambda(lambda img: __rotate(img, params['rotate'])))
     if convert:
         transform_list += [transforms.ToTensor()]
-        if grayscale:
-            transform_list += [transforms.Normalize((0.5,), (0.5,))]
-        else:
-            transform_list += [transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+        if mask == False:
+            if grayscale:
+                transform_list += [transforms.Normalize((0.5,), (0.5,))]
+            else:
+                transform_list += [transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     return transforms.Compose(transform_list)
 
 
@@ -131,7 +138,9 @@ def __scale_width(img, target_size, crop_size, method=Image.BICUBIC):
     h = int(max(target_size * oh / ow, crop_size))
     return img.resize((w, h), method)
 
-
+def __rotate(img,degree):
+    return img.rotate(degree)
+    
 def __crop(img, pos, size):
     ow, oh = img.size
     x1, y1 = pos
@@ -144,6 +153,12 @@ def __crop(img, pos, size):
 def __flip(img, flip):
     if flip:
         return img.transpose(Image.FLIP_LEFT_RIGHT)
+    return img
+
+
+def __flipvertical(img, flip):
+    if flip:
+        return img.transpose(Image.FLIP_TOP_BOTTOM)
     return img
 
 
